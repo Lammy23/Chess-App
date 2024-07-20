@@ -15,7 +15,7 @@
 }
 
 #chesstile {
-  width: 70px;
+  width: 70px; /* might be redundant */
   height: 70px;
   background-color: white;
 }
