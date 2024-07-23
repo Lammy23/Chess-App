@@ -11,6 +11,7 @@ function ChessBoard() {
   return (
     <div id="chessboard">
       {
+        //Initial Position of the Board
         board.map((position) => {
           let image;
           if (position[1] === '2') { // Rendering White Pawns
