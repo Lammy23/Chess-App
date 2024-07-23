@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 /**
  * This function returns a color based on the position of the tile on the board
@@ -13,14 +13,15 @@ function getColor(file, rank) {
         return '#ebecd0';
 }
 
-function ChessTile( {position} ) {
+function ChessTile( {position, image} ) {
     const file = position[0];
     const rank = position[1];
     const color = getColor(file, rank)
+    const [piece, setPiece] = useState(image);
 
     return (
         <div id='chesstile' style={{backgroundColor: color}}>
-            {position}
+            {image}
         </div>
     )
 };
