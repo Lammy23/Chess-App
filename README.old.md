@@ -1,2 +1,2 @@
 # Chess-App
-Chess App in JavaScript
+Chess App in JavaScript, HTML, and CSS
