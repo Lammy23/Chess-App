@@ -1,6 +1,8 @@
 import React from "react";
 import ChessTile from "../components/ChessTile";
 
+import "./ChessBoard.css";
+
 function ChessBoard() {
 
     const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

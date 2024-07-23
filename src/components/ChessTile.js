@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import "./ChessTile.css";
 
 /**
  * This function returns a color based on the position of the tile on the board

@@ -5,27 +5,3 @@
   height: 100vh;
   background-color: #302e2b;
 }
-
-#chessboard {
-  display: grid;
-  grid-template-columns: repeat(8, 70px);
-  width: 560px;
-  height: 560px;
-  background-color: #4e7598; /* backdrop */
-}
-
-#chesstile {
-  display: flex;
-  width: 70px; /* might be redundant */
-  height: 70px;
-  background-color: white;
-  justify-content: center;
-  align-items: center;
-}
-
-#piece {
-  display: flex;
-  place-content: center;
-  width: 50px;
-  height: 50px;
-}
