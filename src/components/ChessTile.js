@@ -20,7 +20,7 @@ function ChessTile( {position} ) {
 
     return (
         <div id='chesstile' style={{backgroundColor: color}}>
-            {position}
+            {<img id='piece' src="assets/images/pawn_b.png"/>}
         </div>
     )
 };

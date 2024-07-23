@@ -1,5 +1,5 @@
 import React from "react";
-import ChessTile from "./ChessTile";
+import ChessTile from "../components/ChessTile";
 
 function ChessBoard() {
 
