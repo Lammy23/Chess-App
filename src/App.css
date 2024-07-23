@@ -15,9 +15,12 @@
 }
 
 #chesstile {
+  display: flex;
   width: 70px; /* might be redundant */
   height: 70px;
   background-color: white;
+  justify-content: center;
+  align-items: center;
 }
 
 #piece {
