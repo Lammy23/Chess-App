@@ -4,4 +4,6 @@
     width: 560px;
     height: 560px;
     background-color: #4e7598; /* backdrop */
+
+    /* TODO: useRef for all hardcoded stuff like 35 offset for grabbing pieces. */
   }

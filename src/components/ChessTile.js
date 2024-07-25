@@ -17,7 +17,7 @@ function getColor(file, rank) {
 }
 
 function ChessTile({ position, piece }) {
-  const { grabPiece, movePiece, dropPiece } = useMovementContext(); // Using MovementContext
+  const { grabPiece } = useMovementContext(); // Using MovementContext
   const file = position[0];
   const rank = position[1];
   const color = getColor(file, rank);
@@ -30,12 +30,7 @@ function ChessTile({ position, piece }) {
       onMouseDown={(e) => {
         grabPiece(e);
       }}
-      onMouseMove={(e) => {
-        movePiece(e);
-      }}
-      onMouseUp={() => {
-        dropPiece();
-      }}
+
       style={{ backgroundColor: color }}
     >
       {chessPiece ? ( // Tenary operator that only renders div if tile has a chess piece, improving performance.

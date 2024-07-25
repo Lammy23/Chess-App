@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { act, createContext, useContext, useState } from "react";
 
 const MovementContext = createContext();
 
@@ -16,6 +16,7 @@ export const MovementProvider = ({ children }) => {
       const mouseY = e.clientY;
 
       element.style.position = "absolute";
+
       element.style.top = `${mouseY - 35}px`; // 35px offset to center the piece
       element.style.left = `${mouseX - 35}px`;
     }
@@ -25,16 +26,24 @@ export const MovementProvider = ({ children }) => {
     activePiece && setActivePiece(null);
   }
 
-  function movePiece(e) {
-    // const element = e.target;
-
+  function movePiece(e, chessboardRef) {
+    const chessboard = chessboardRef.current;
     if (activePiece && activePiece.className === "piece-div") {
       const mouseX = e.clientX;
       const mouseY = e.clientY;
 
       activePiece.style.position = "absolute";
-      activePiece.style.top = `${mouseY - 35}px`; // 35px offset to center the piece
-      activePiece.style.left = `${mouseX - 35}px`;
+
+      const leftBound = chessboard.offsetLeft;
+      const topBound = chessboard.offsetTop;
+      const rightBound = leftBound + chessboard.clientWidth;
+      const bottomBound = topBound + chessboard.clientHeight;
+
+      if (mouseX >= leftBound && mouseX <= rightBound)
+        activePiece.style.left = `${mouseX - 35}px`;
+
+      if (mouseY >= topBound && mouseY <= bottomBound)
+        activePiece.style.top = `${mouseY - 35}px`;
     }
   }
 
