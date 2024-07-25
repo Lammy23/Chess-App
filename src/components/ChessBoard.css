@@ -3,9 +3,6 @@
     grid-template-columns: repeat(8, 70px);
     width: 560px;
     height: 560px;
-    background-color: #4e7598; /* backdrop */
+    background-color: red; /* backdrop */
 
-    /* TODO: useRef for all hardcoded stuff like 35 offset for grabbing pieces. */
-    /* TODO: make the chess pieces slightly larger */
-    /* TODO: fix clicking out of bounds error */
   }

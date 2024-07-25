@@ -13,7 +13,7 @@ function ChessBoard() {
     .reverse()
     .forEach((rank) => files.forEach((file) => board.push(file + rank)));
 
-  const { movePiece, dropPiece, piecePosition } = useMovementContext();
+  const { movePiece, dropPiece, piecePosition, activePiece} = useMovementContext();
   const chessboardRef = useRef(null);
 
   if (piecePosition)
@@ -24,7 +24,7 @@ function ChessBoard() {
           movePiece(e, chessboardRef);
         }}
         onMouseUp={() => {
-          dropPiece(chessboardRef);
+         if (activePiece)  dropPiece(chessboardRef);
         }}
       >
         <div id="chessboard" ref={chessboardRef}>

@@ -1,6 +1,5 @@
 .chesstile {
   display: flex;
-  width: 70px; /* might be redundant */
   height: 70px;
   background-color: white;
   justify-content: center;
@@ -12,7 +11,7 @@
   height: 70px;
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 60px;
+  background-size: 70px;
 }
 
 .piece-div:hover {

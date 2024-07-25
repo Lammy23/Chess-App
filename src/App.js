@@ -6,9 +6,10 @@ import "./App.css";
 
 function App() {
   const appRef = useRef();
+  
   return (
     <MovementProvider appRef={appRef}>
-      <div>
+      <div ref={appRef}>
         <ChessBoard />
       </div>
     </MovementProvider>

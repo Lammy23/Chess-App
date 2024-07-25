@@ -1,19 +1,44 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { files, ranks } from "../components/constants";
-// TODO: Make chessboardref passed to whole movementcontext.
 const MovementContext = createContext();
 
 export const useMovementContext = () => useContext(MovementContext);
 
-export const MovementProvider = ({ children }) => {
+export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] = useState(null);
   const [activePiece, setActivePiece] = useState(null);
   const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
-  const [refresh, setRefresh] = useState(false);
+  
+
+  function getChessboardElements() {
+
+    const chessboardDiv = appRef.current.children[0].children[0];
+    const chesstileDiv = chessboardDiv.children[0];
+
+    const tileWidth = chesstileDiv.clientWidth;
+    const tileHeight = chesstileDiv.clientHeight;
+
+    const leftBound = chessboardDiv.offsetLeft;
+    const topBound = chessboardDiv.offsetTop;
+    const rightBound = leftBound + chessboardDiv.clientWidth;
+    const bottomBound = topBound + chessboardDiv.clientHeight;
+
+    return {
+      chessboardDiv,
+      chesstileDiv,
+      tileWidth,
+      tileHeight,
+      leftBound,
+      topBound,
+      rightBound,
+      bottomBound,
+    };
+  }
 
   function grabPiece(e, position) {
+    const { tileWidth, tileHeight } = getChessboardElements();
+
     setActivePieceOrigin(position);
-    console.log(position);
     const element = e.target;
     setActivePiece(element); // Takes a while to update, asynchronously. So we use 'element' for now.
 
@@ -23,15 +48,13 @@ export const MovementProvider = ({ children }) => {
 
       element.style.position = "absolute";
 
-      element.style.top = `${mouseY - 35}px`; // 35px offset to center the piece
-      element.style.left = `${mouseX - 35}px`;
+      element.style.top = `${mouseY - tileHeight / 2}px`; // offset to center the piece
+      element.style.left = `${mouseX - tileWidth / 2}px`;
     }
   }
 
-  function dropPiece(chessboardRef) {
-    const chessboard = chessboardRef.current;
-    const leftBound = chessboard.offsetLeft;
-    const topBound = chessboard.offsetTop;
+  function dropPiece() {
+    const { leftBound, topBound } = getChessboardElements();
 
     let positionX = activePiece.style.left;
     let positionY = activePiece.style.top;
@@ -51,34 +74,34 @@ export const MovementProvider = ({ children }) => {
         updatedPosition[activePieceOrigin] = null;
         return updatedPosition;
       });
-      else {
-        // If the piece is dropped in the same position or out of bounds, reset the piece
-        activePiece.style.position = "relative";
-        activePiece.style.top = "0px";
-        activePiece.style.left = "0px";
-      }
-
-    // Force re-render
-    setRefresh((prev) => !prev);
+    else {
+      // If the piece is dropped in the same position or out of bounds, reset the piece
+      activePiece.style.position = "relative";
+      activePiece.style.top = "0px";
+      activePiece.style.left = "0px";
+    }
 
     activePiece && setActivePiece(null);
   }
 
-  function coordinatesToFileAndRank(positionX, positionY, leftBound, topBound) {
+  function coordinatesToFileAndRank(positionX, positionY) {
+    const { tileWidth, tileHeight, leftBound, topBound } =
+      getChessboardElements();
+
     // Extract the coordinates
 
     var x = parseInt(positionX.slice(0, positionX.length - 2));
     var y = parseInt(positionY.slice(0, positionY.length - 2));
 
-    // Account for the board offset
+    // Account for the board offset and piece center
 
-    x = x - leftBound + 35; // 35px to account for center of piece
-    y = y - topBound + 35;
+    x = x - leftBound + tileWidth / 2;
+    y = y - topBound + tileHeight / 2;
 
     // Account for size of tile
 
-    x = Math.floor(x / 70);
-    y = Math.floor(y / 70);
+    x = Math.floor(x / tileWidth);
+    y = Math.floor(y / tileHeight);
 
     // Flip y presentation (to fix error)
 
@@ -93,22 +116,26 @@ export const MovementProvider = ({ children }) => {
     else return null;
   }
 
-  function movePiece(e, chessboardRef) {
-    const chessboard = chessboardRef.current;
-    const leftBound = chessboard.offsetLeft;
-    const topBound = chessboard.offsetTop;
-    const rightBound = leftBound + chessboard.clientWidth;
-    const bottomBound = topBound + chessboard.clientHeight;
+  function movePiece(e) {
+    // #TODO: This line of code below makes the game slow
+    const {
+      tileWidth,
+      tileHeight,
+      leftBound,
+      topBound,
+      rightBound,
+      bottomBound,
+    } = getChessboardElements();
 
     // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
-
-    if (activePiece) {
-      let positionX = activePiece.style.left;
-      let positionY = activePiece.style.top;
-      console.log(
-        coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
-      );
-    }
+    // DEBUG
+    // if (activePiece) {
+    //   let positionX = activePiece.style.left;
+    //   let positionY = activePiece.style.top;
+    //   console.log(
+    //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
+    //   );
+    // }
 
     if (activePiece && activePiece.className === "piece-div") {
       const mouseX = e.clientX;
@@ -117,10 +144,10 @@ export const MovementProvider = ({ children }) => {
       activePiece.style.position = "absolute";
 
       if (mouseX >= leftBound && mouseX <= rightBound)
-        activePiece.style.left = `${mouseX - 35}px`;
+        activePiece.style.left = `${mouseX - tileWidth / 2}px`;
 
       if (mouseY >= topBound && mouseY <= bottomBound)
-        activePiece.style.top = `${mouseY - 35}px`;
+        activePiece.style.top = `${mouseY - tileHeight / 2}px`;
     }
   }
 
@@ -173,7 +200,6 @@ export const MovementProvider = ({ children }) => {
         movePiece,
         dropPiece,
         piecePosition,
-        refresh,
       }}
     >
       {children}
