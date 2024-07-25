@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useMovementContext } from "../context/MovementContext";
+
 import "./ChessTile.css";
 
 /**
@@ -15,13 +17,27 @@ function getColor(file, rank) {
 }
 
 function ChessTile({ position, piece }) {
+  const { grabPiece, movePiece, dropPiece } = useMovementContext(); // Using MovementContext
   const file = position[0];
   const rank = position[1];
   const color = getColor(file, rank);
+
   const [chessPiece, setChessPiece] = useState(piece);
 
   return (
-    <div className="chesstile" style={{ backgroundColor: color }}>
+    <div
+      className="chesstile"
+      onMouseDown={(e) => {
+        grabPiece(e);
+      }}
+      onMouseMove={(e) => {
+        movePiece(e);
+      }}
+      onMouseUp={() => {
+        dropPiece();
+      }}
+      style={{ backgroundColor: color }}
+    >
       {chessPiece ? ( // Tenary operator that only renders div if tile has a chess piece, improving performance.
         <div
           className="piece-div"
