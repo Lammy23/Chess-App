@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useRef } from "react";
 import ChessBoard from "./components/ChessBoard";
 import { MovementProvider } from "./context/MovementContext";
 
 import "./App.css";
 
 function App() {
+  const appRef = useRef();
   return (
-    <MovementProvider>
+    <MovementProvider appRef={appRef}>
       <div>
         <ChessBoard />
       </div>
