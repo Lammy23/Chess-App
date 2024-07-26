@@ -9,7 +9,6 @@ export const MovementProvider = ({ children, appRef }) => {
   const [activePiece, setActivePiece] = useState(null);
   const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
   
-
   function getChessboardElements() {
 
     const chessboardDiv = appRef.current.children[0].children[0];
