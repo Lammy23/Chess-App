@@ -17,23 +17,21 @@ function getColor(file, rank) {
 }
 
 function ChessTile({ position, piece }) {
-  const { grabPiece } = useMovementContext(); // Using MovementContext
-  const file = position[0];
-  const rank = position[1];
-  const color = getColor(file, rank);
+  const { grabPiece } = useMovementContext(); // Using MovementContext Logic
+  const color = getColor(position[0], position[1]); // Getting the color of this particular tile
 
   return (
     <div
       className="chesstile"
-      onMouseDown={(e) => {
+      onMouseDown={(e) => { // Checking for a click down and calling the functions
         grabPiece(e, position);
       }}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: color }} // Styling with the appropriate background color
     >
-      {piece ? ( // Tenary operator that only renders div if tile has a chess piece, improving performance.
+      {piece ? ( // Tenary operator that only renders this div if tile has a chess piece, slightly improving performance.
         <div
           className="piece-div"
-          style={{ backgroundImage: `url('assets/images/${piece}.png')` }}
+          style={{ backgroundImage: `url('assets/images/${piece}.png')` }} // Using the piece keyword effectively to render the correct image.
         ></div>
       ) : null}
     </div>

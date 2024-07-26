@@ -1,26 +1,37 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { files, ranks } from "../components/constants";
-const MovementContext = createContext();
 
+import { files, ranks } from "../components/constants";
+const MovementContext = createContext(); // Creating the Context (Logic )
+
+// Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
 
 export const MovementProvider = ({ children, appRef }) => {
-  const [piecePosition, setPiecePosition] = useState(null);
-  const [activePiece, setActivePiece] = useState(null);
-  const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
-  
+  const [piecePosition, setPiecePosition] =
+    useState(
+      null
+    ); /* A Hashmap representing starting positions. New positions can be added dynamically */
+  const [activePiece, setActivePiece] =
+    useState(null); /* The div element that is the active piece */
+  const [activePieceOrigin, setActivePieceOrigin] =
+    useState(""); /* The position string that the active piece came from */
+
+  /**
+   * This function returns various elements and properties of the chessboard div.
+   * TODO: The constants created here don't ever change so I should probably find a way to calculate them and store them somewhere.
+   * @returns Object containing the chessboard div, chess tile div, tile width, tile height, left bound, top bound, right bound and bottom bound
+   */
   function getChessboardElements() {
+    const chessboardDiv = appRef.current.children[0].children[0]; // Extracting the chessboard div
+    const chesstileDiv = chessboardDiv.children[0]; // Extracting the first chess tile div.
 
-    const chessboardDiv = appRef.current.children[0].children[0];
-    const chesstileDiv = chessboardDiv.children[0];
+    const tileWidth = chesstileDiv.clientWidth; // Calculating the width of the first chess tile. Since they're all uniform it shouldn't be a problem
+    const tileHeight = chesstileDiv.clientHeight; // Calculating the height of the first chess tile.
 
-    const tileWidth = chesstileDiv.clientWidth;
-    const tileHeight = chesstileDiv.clientHeight;
-
-    const leftBound = chessboardDiv.offsetLeft;
-    const topBound = chessboardDiv.offsetTop;
-    const rightBound = leftBound + chessboardDiv.clientWidth;
-    const bottomBound = topBound + chessboardDiv.clientHeight;
+    const leftBound = chessboardDiv.offsetLeft; // Calculating the coordinates of the left edge of the board.
+    const topBound = chessboardDiv.offsetTop; // Calculating the coordinates of the top edge of the board.
+    const rightBound = leftBound + chessboardDiv.clientWidth; // "" "" of the right edge.
+    const bottomBound = topBound + chessboardDiv.clientHeight; // "" "" of the bottom edge.
 
     return {
       chessboardDiv,
@@ -34,123 +45,156 @@ export const MovementProvider = ({ children, appRef }) => {
     };
   }
 
-  function grabPiece(e, position) {
-    const { tileWidth, tileHeight } = getChessboardElements();
+    /**
+   * Function to convert the position of the piece to a file and rank
+   * @param {String} positionX
+   * @param {String} positionY
+   * @returns String of file and rank if the position is valid, else null
+   */
+    function coordinatesToFileAndRank(positionX, positionY) {
+      const { tileWidth, tileHeight, leftBound, topBound } =
+        getChessboardElements();
+  
+      // Extract the coordinates
+  
+      var x = parseInt(positionX.slice(0, positionX.length - 2));
+      var y = parseInt(positionY.slice(0, positionY.length - 2));
+  
+      // Account for the board offset and piece center
+  
+      x = x - leftBound + tileWidth / 2;
+      y = y - topBound + tileHeight / 2;
+  
+      // Account for size of tile
+  
+      x = Math.floor(x / tileWidth);
+      y = Math.floor(y / tileHeight);
+  
+      // Flip y presentation (to fix error)
+  
+      y = 7 - y;
+  
+      // Get ranking and filing
+  
+      x = files[x];
+      y = ranks[y];
+  
+      if (x && y) return `${x}${y}`;
+      else return null;
+    }
 
-    setActivePieceOrigin(position);
-    const element = e.target;
-    setActivePiece(element); // Takes a while to update, asynchronously. So we use 'element' for now.
+  /**
+   * Function to grab the piece. This function runs once.
+   * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
+   * @param {String} position
+   */
+  function grabPiece(e, position) {
+    const element = e.target; // Extracting the div element (chess tile) from the React event.
 
     if (element.className === "piece-div") {
-      const mouseX = e.clientX;
-      const mouseY = e.clientY;
+      // Checking to see if we grabbed an actual piece
 
-      element.style.position = "absolute";
+      const { tileWidth, tileHeight } = getChessboardElements(); // Extracting only needed variables from function
+      setActivePieceOrigin(position); // Setting the origin of the active piece to a position (e.g. 'a1', 'e4')
 
-      element.style.top = `${mouseY - tileHeight / 2}px`; // offset to center the piece
+      const mouseX = e.clientX; // Grabbing the x coordinates of the mouse
+      const mouseY = e.clientY; // Grabbing the y coordinates of the mouse
+
+      element.style.position = "absolute"; // Setting 'absolute' position (from relative), somewhat 'unlocking' its position. It can now move anywhere on the board.
+
+      // Creating offset to center the piece with the mouse
+      element.style.top = `${mouseY - tileHeight / 2}px`;
       element.style.left = `${mouseX - tileWidth / 2}px`;
     }
+
+    setActivePiece(element); // Assigning the state variable.
+
+    /* Setting state variables happen asynchronously, so we try to assign them at the end.
+    For example, we couldn't assign it first then use activePiece as a variable because React might
+    use a previous state of that variable. */
   }
 
-  function dropPiece() {
-    const { leftBound, topBound } = getChessboardElements();
+    /**
+   * Function to move the piece. This function runs multiple times a second.
+   * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
+   */
+    function movePiece(e) {
+      // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
+      // DEBUG
+      // if (activePiece) {
+      //   let positionX = activePiece.style.left;
+      //   let positionY = activePiece.style.top;
+      //   console.log(
+      //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
+      //   );
+      // }
+  
+      if (activePiece && activePiece.className === "piece-div") {
+        // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
+        const {
+          tileWidth,
+          tileHeight,
+          leftBound,
+          topBound,
+          rightBound,
+          bottomBound,
+        } = getChessboardElements();
 
-    let positionX = activePiece.style.left;
-    let positionY = activePiece.style.top;
-
-    const currentCoordinates = coordinatesToFileAndRank(
-      positionX,
-      positionY,
-      leftBound,
-      topBound
-    );
-
-    if (currentCoordinates && currentCoordinates !== activePieceOrigin)
-      setPiecePosition((prev) => {
-        const oldCoordinates = prev[activePieceOrigin];
-        const updatedPosition = { ...prev };
-        updatedPosition[currentCoordinates] = oldCoordinates;
-        updatedPosition[activePieceOrigin] = null;
-        return updatedPosition;
-      });
-    else {
-      // If the piece is dropped in the same position or out of bounds, reset the piece
-      activePiece.style.position = "relative";
-      activePiece.style.top = "0px";
-      activePiece.style.left = "0px";
+        const mouseX = e.clientX; // Getting the x coordinates of the mouse
+        const mouseY = e.clientY; // Getting the y coordinates of the mouse
+  
+        /* If the mouse is within the bounds, let the piece follow the center of the mouse */
+        if (mouseX >= leftBound && mouseX <= rightBound)
+          activePiece.style.left = `${mouseX - tileWidth / 2}px`;
+  
+        if (mouseY >= topBound && mouseY <= bottomBound)
+          activePiece.style.top = `${mouseY - tileHeight / 2}px`;
+      }
     }
 
-    activePiece && setActivePiece(null);
-  }
+  /**
+   * Function to drop the piece. This function runs once.
+   */
+  function dropPiece() {
+    if (activePiece) {
+      // Checking if we're holding a piece
 
-  function coordinatesToFileAndRank(positionX, positionY) {
-    const { tileWidth, tileHeight, leftBound, topBound } =
-      getChessboardElements();
+      const { leftBound, topBound } = getChessboardElements(); // Extracting only needed variables from function
 
-    // Extract the coordinates
+      let positionX = activePiece.style.left;
+      let positionY = activePiece.style.top;
 
-    var x = parseInt(positionX.slice(0, positionX.length - 2));
-    var y = parseInt(positionY.slice(0, positionY.length - 2));
+      const currentCoordinates = coordinatesToFileAndRank(
+        positionX,
+        positionY,
+        leftBound,
+        topBound
+      );
 
-    // Account for the board offset and piece center
+      if (currentCoordinates && currentCoordinates !== activePieceOrigin)
 
-    x = x - leftBound + tileWidth / 2;
-    y = y - topBound + tileHeight / 2;
+        setPiecePosition((prev) => {
+          /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
+          This automatically triggers a re-render (as it's a state variable) */
+          const oldCoordinates = prev[activePieceOrigin];
+          const updatedPosition = { ...prev }; /* Hard to figure piece of code that I documented in problems and solutions */
+          updatedPosition[currentCoordinates] = oldCoordinates;
+          updatedPosition[activePieceOrigin] = null;
+          return updatedPosition;
+        });
+      else {
+        /* If the piece is dropped in the same position or out of bounds, reset the piece */
+        activePiece.style.position = "relative";
+        activePiece.style.top = "0px";
+        activePiece.style.left = "0px";
+      }
 
-    // Account for size of tile
-
-    x = Math.floor(x / tileWidth);
-    y = Math.floor(y / tileHeight);
-
-    // Flip y presentation (to fix error)
-
-    y = 7 - y;
-
-    // Get ranking and filing
-
-    x = files[x];
-    y = ranks[y];
-
-    if (x && y) return `${x}${y}`;
-    else return null;
-  }
-
-  function movePiece(e) {
-    // #TODO: This line of code below makes the game slow
-    const {
-      tileWidth,
-      tileHeight,
-      leftBound,
-      topBound,
-      rightBound,
-      bottomBound,
-    } = getChessboardElements();
-
-    // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
-    // DEBUG
-    // if (activePiece) {
-    //   let positionX = activePiece.style.left;
-    //   let positionY = activePiece.style.top;
-    //   console.log(
-    //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
-    //   );
-    // }
-
-    if (activePiece && activePiece.className === "piece-div") {
-      const mouseX = e.clientX;
-      const mouseY = e.clientY;
-
-      activePiece.style.position = "absolute";
-
-      if (mouseX >= leftBound && mouseX <= rightBound)
-        activePiece.style.left = `${mouseX - tileWidth / 2}px`;
-
-      if (mouseY >= topBound && mouseY <= bottomBound)
-        activePiece.style.top = `${mouseY - tileHeight / 2}px`;
+      setActivePiece(null); // Remove the active piece.
     }
   }
 
   useEffect(() => {
+    /* Upon loading the app, this should be the default position of the chess board */
     setPiecePosition({
       // Hashmap representing starting positions
       a1: "rook_w",
@@ -189,7 +233,7 @@ export const MovementProvider = ({ children, appRef }) => {
   }, []);
 
   return (
-    <MovementContext.Provider
+    <MovementContext.Provider // Providing function and variables for other components to use.
       value={{
         activePiece,
         activePieceOrigin,
