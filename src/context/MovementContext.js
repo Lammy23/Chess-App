@@ -100,7 +100,7 @@ export const MovementProvider = ({ children, appRef }) => {
       const mouseX = e.clientX; // Grabbing the x coordinates of the mouse
       const mouseY = e.clientY; // Grabbing the y coordinates of the mouse
 
-      element.style.position = "absolute"; // Setting 'absolute' position (from relative), somewhat 'unlocking' its position. It can now move anywhere on the board.
+      element.style.position = "absolute"; // Setting 'absolute' position (from null), somewhat 'unlocking' its position. It can now move anywhere on the board.
 
       // Creating offset to center the piece with the mouse
       element.style.top = `${mouseY - tileHeight / 2}px`;
@@ -184,9 +184,9 @@ export const MovementProvider = ({ children, appRef }) => {
         });
       else {
         /* If the piece is dropped in the same position or out of bounds, reset the piece */
-        activePiece.style.position = "relative";
-        activePiece.style.top = "0px";
-        activePiece.style.left = "0px";
+        activePiece.style.position = null;
+        activePiece.style.top = null;
+        activePiece.style.left = null;
       }
 
       setActivePiece(null); // Remove the active piece.
