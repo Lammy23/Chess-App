@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { files, ranks } from "../components/constants";
+import Referee from "../components/referee";
+
 const MovementContext = createContext();
 
 export const useMovementContext = () => useContext(MovementContext);
@@ -8,7 +10,7 @@ export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] = useState(null);
   const [activePiece, setActivePiece] = useState(null);
   const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
-  
+  const referee = new Referee();
 
   function getChessboardElements() {
 
@@ -65,6 +67,8 @@ export const MovementProvider = ({ children, appRef }) => {
       leftBound,
       topBound
     );
+    //DEBUG test to see if referee class works
+    referee.isValidMove();
 
     if (currentCoordinates && currentCoordinates !== activePieceOrigin)
       setPiecePosition((prev) => {
