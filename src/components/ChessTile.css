@@ -1,8 +1,23 @@
-#chesstile {
-    display: flex;
-    width: 70px; /* might be redundant */
-    height: 70px;
-    background-color: white;
-    justify-content: center;
-    align-items: center;
-  }
+.chesstile {
+  display: flex;
+  height: 70px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+}
+
+.piece-div {
+  width: 70px;
+  height: 70px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 60px;
+}
+
+.piece-div:hover {
+  cursor: grab;
+}
+
+.piece-div:active {
+  cursor: grabbing;
+}
