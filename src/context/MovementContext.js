@@ -8,11 +8,21 @@ const MovementContext = createContext(); // Creating the Context (Logic )
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
 
+// export const PieceType = { //List of Chess pieces used for determining the valid moves for referee
+//   KING: 'KING',
+//   QUEEN: 'QUEEN',
+//   BISHOP: 'BISHOP',
+//   KNIGHT: 'KNIGHT',
+//   ROOK: 'ROOK',
+//   PAWN: 'PAWN'
+// };
+
 export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] = useState(null);
   const [activePiece, setActivePiece] = useState(null);
   const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
   const referee = new Referee(); //Instance of referee to check the movement of pieces
+
   
 
   function getChessboardElements() {
@@ -172,12 +182,14 @@ export const MovementProvider = ({ children, appRef }) => {
         topBound
       );
 
-      /* Referee will check if the piece it is trying to place down is being dropped in a valid position
-        from its starting position */
-      
-      referee.isValidMove();
+      if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
+        // Get the piece type from the piecePosition state using the activePieceOrigin
+        const pieceType = piecePosition[activePieceOrigin]; //Accessing the hashmap to get the piece type
 
-      if (currentCoordinates && currentCoordinates !== activePieceOrigin)
+        /* Referee will check if the piece it is trying to place down is being dropped in a valid position
+        from its starting position */
+        referee.isValidMove(currentCoordinates, activePieceOrigin, pieceType);
+
         setPiecePosition((prev) => {
           /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
           This automatically triggers a re-render (as it's a state variable) */
@@ -189,6 +201,7 @@ export const MovementProvider = ({ children, appRef }) => {
           updatedPosition[activePieceOrigin] = null;
           return updatedPosition;
         });
+      }
       else {
         /* If the piece is dropped in the same position or out of bounds, reset the piece */
         activePiece.style.position = null;
