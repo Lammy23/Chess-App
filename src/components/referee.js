@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 
 export default class referee {
-    isValidMove(positionX, positionY, piecePosition, piece) {
+    isValidMove() {
         console.log("CHECK");
         return true;        
     }

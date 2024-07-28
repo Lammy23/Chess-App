@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { files, ranks } from "../components/constants";
 import Referee from "../components/referee";
+import referee from "../components/referee";
 
 const MovementContext = createContext(); // Creating the Context (Logic )
 
@@ -12,6 +13,7 @@ export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] = useState(null);
   const [activePiece, setActivePiece] = useState(null);
   const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
+  const referee = new Referee(); //Instance of referee to check the movement of pieces
   
 
   function getChessboardElements() {
@@ -25,6 +27,7 @@ export const MovementProvider = ({ children, appRef }) => {
     const topBound = chessboardDiv.offsetTop; // Calculating the coordinates of the top edge of the board.
     const rightBound = leftBound + chessboardDiv.clientWidth; // "" "" of the right edge.
     const bottomBound = topBound + chessboardDiv.clientHeight; // "" "" of the bottom edge.
+    
 
     return {
       chessboardDiv,
@@ -169,6 +172,11 @@ export const MovementProvider = ({ children, appRef }) => {
         leftBound,
         topBound
       );
+
+      /* Referee will check if the piece it is trying to place down is being dropped in a valid position
+        from its starting position */
+      
+      referee.isValidMove();
 
       if (currentCoordinates && currentCoordinates !== activePieceOrigin)
         setPiecePosition((prev) => {
