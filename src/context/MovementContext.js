@@ -45,43 +45,43 @@ export const MovementProvider = ({ children, appRef }) => {
     };
   }
 
-    /**
+  /**
    * Function to convert the position of the piece to a file and rank
    * @param {String} positionX
    * @param {String} positionY
    * @returns String of file and rank if the position is valid, else null
    */
-    function coordinatesToFileAndRank(positionX, positionY) {
-      const { tileWidth, tileHeight, leftBound, topBound } =
-        getChessboardElements();
-  
-      // Extract the coordinates
-  
-      var x = parseInt(positionX.slice(0, positionX.length - 2));
-      var y = parseInt(positionY.slice(0, positionY.length - 2));
-  
-      // Account for the board offset and piece center
-  
-      x = x - leftBound + tileWidth / 2;
-      y = y - topBound + tileHeight / 2;
-  
-      // Account for size of tile
-  
-      x = Math.floor(x / tileWidth);
-      y = Math.floor(y / tileHeight);
-  
-      // Flip y presentation (to fix error)
-  
-      y = 7 - y;
-  
-      // Get ranking and filing
-  
-      x = files[x];
-      y = ranks[y];
-  
-      if (x && y) return `${x}${y}`;
-      else return null;
-    }
+  function coordinatesToFileAndRank(positionX, positionY) {
+    const { tileWidth, tileHeight, leftBound, topBound } =
+      getChessboardElements();
+
+    // Extract the coordinates
+
+    var x = parseInt(positionX.slice(0, positionX.length - 2));
+    var y = parseInt(positionY.slice(0, positionY.length - 2));
+
+    // Account for the board offset and piece center
+
+    x = x - leftBound + tileWidth / 2;
+    y = y - topBound + tileHeight / 2;
+
+    // Account for size of tile
+
+    x = Math.floor(x / tileWidth);
+    y = Math.floor(y / tileHeight);
+
+    // Flip y presentation (to fix error)
+
+    y = 7 - y;
+
+    // Get ranking and filing
+
+    x = files[x];
+    y = ranks[y];
+
+    if (x && y) return `${x}${y}`;
+    else return null;
+  }
 
   /**
    * Function to grab the piece. This function runs once.
@@ -114,43 +114,49 @@ export const MovementProvider = ({ children, appRef }) => {
     use a previous state of that variable. */
   }
 
-    /**
+  /**
    * Function to move the piece. This function runs multiple times a second.
    * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
    */
-    function movePiece(e) {
-      // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
-      // DEBUG
-      // if (activePiece) {
-      //   let positionX = activePiece.style.left;
-      //   let positionY = activePiece.style.top;
-      //   console.log(
-      //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
-      //   );
-      // }
-  
-      if (activePiece && activePiece.className === "piece-div") {
-        // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
-        const {
-          tileWidth,
-          tileHeight,
-          leftBound,
-          topBound,
-          rightBound,
-          bottomBound,
-        } = getChessboardElements();
+  function movePiece(e) {
+    // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
+    // DEBUG
+    // if (activePiece) {
+    //   let positionX = activePiece.style.left;
+    //   let positionY = activePiece.style.top;
+    //   console.log(
+    //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
+    //   );
+    // }
 
-        const mouseX = e.clientX; // Getting the x coordinates of the mouse
-        const mouseY = e.clientY; // Getting the y coordinates of the mouse
-  
-        /* If the mouse is within the bounds, let the piece follow the center of the mouse */
-        if (mouseX >= leftBound && mouseX <= rightBound)
-          activePiece.style.left = `${mouseX - tileWidth / 2}px`;
-  
-        if (mouseY >= topBound && mouseY <= bottomBound)
-          activePiece.style.top = `${mouseY - tileHeight / 2}px`;
+    if (activePiece && activePiece.className === "piece-div") {
+      // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
+
+      // If no mouse button is clicked, drop the piece. This fixes the spam click bug.
+      if (e.buttons === 0) {
+        dropPiece();
       }
+
+      const {
+        tileWidth,
+        tileHeight,
+        leftBound,
+        topBound,
+        rightBound,
+        bottomBound,
+      } = getChessboardElements();
+
+      const mouseX = e.clientX; // Getting the x coordinates of the mouse
+      const mouseY = e.clientY; // Getting the y coordinates of the mouse
+
+      /* If the mouse is within the bounds, let the piece follow the center of the mouse */
+      if (mouseX >= leftBound && mouseX <= rightBound)
+        activePiece.style.left = `${mouseX - tileWidth / 2}px`;
+
+      if (mouseY >= topBound && mouseY <= bottomBound)
+        activePiece.style.top = `${mouseY - tileHeight / 2}px`;
     }
+  }
 
   /**
    * Function to drop the piece. This function runs once.
@@ -172,12 +178,13 @@ export const MovementProvider = ({ children, appRef }) => {
       );
 
       if (currentCoordinates && currentCoordinates !== activePieceOrigin)
-
         setPiecePosition((prev) => {
           /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
           This automatically triggers a re-render (as it's a state variable) */
           const oldCoordinates = prev[activePieceOrigin];
-          const updatedPosition = { ...prev }; /* Hard to figure piece of code that I documented in problems and solutions */
+          const updatedPosition = {
+            ...prev,
+          }; /* Hard to figure piece of code that I documented in problems and solutions */
           updatedPosition[currentCoordinates] = oldCoordinates;
           updatedPosition[activePieceOrigin] = null;
           return updatedPosition;
