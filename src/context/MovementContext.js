@@ -1,29 +1,30 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+
 import { files, ranks } from "../components/constants";
 import Referee from "../components/referee";
 
-const MovementContext = createContext();
+const MovementContext = createContext(); // Creating the Context (Logic )
 
+// Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
 
 export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] = useState(null);
   const [activePiece, setActivePiece] = useState(null);
   const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
-  const referee = new Referee();
+  
 
   function getChessboardElements() {
+    const chessboardDiv = appRef.current.children[0].children[0]; // Extracting the chessboard div
+    const chesstileDiv = chessboardDiv.children[0]; // Extracting the first chess tile div.
 
-    const chessboardDiv = appRef.current.children[0].children[0];
-    const chesstileDiv = chessboardDiv.children[0];
+    const tileWidth = chesstileDiv.clientWidth; // Calculating the width of the first chess tile. Since they're all uniform it shouldn't be a problem
+    const tileHeight = chesstileDiv.clientHeight; // Calculating the height of the first chess tile.
 
-    const tileWidth = chesstileDiv.clientWidth;
-    const tileHeight = chesstileDiv.clientHeight;
-
-    const leftBound = chessboardDiv.offsetLeft;
-    const topBound = chessboardDiv.offsetTop;
-    const rightBound = leftBound + chessboardDiv.clientWidth;
-    const bottomBound = topBound + chessboardDiv.clientHeight;
+    const leftBound = chessboardDiv.offsetLeft; // Calculating the coordinates of the left edge of the board.
+    const topBound = chessboardDiv.offsetTop; // Calculating the coordinates of the top edge of the board.
+    const rightBound = leftBound + chessboardDiv.clientWidth; // "" "" of the right edge.
+    const bottomBound = topBound + chessboardDiv.clientHeight; // "" "" of the bottom edge.
 
     return {
       chessboardDiv,
@@ -67,8 +68,6 @@ export const MovementProvider = ({ children, appRef }) => {
       leftBound,
       topBound
     );
-    //DEBUG test to see if referee class works
-    referee.isValidMove();
 
     if (currentCoordinates && currentCoordinates !== activePieceOrigin)
       setPiecePosition((prev) => {
@@ -120,42 +119,118 @@ export const MovementProvider = ({ children, appRef }) => {
     else return null;
   }
 
-  function movePiece(e) {
-    // #TODO: This line of code below makes the game slow
-    const {
-      tileWidth,
-      tileHeight,
-      leftBound,
-      topBound,
-      rightBound,
-      bottomBound,
-    } = getChessboardElements();
+  /**
+   * Function to grab the piece. This function runs once.
+   * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
+   * @param {String} position
+   */
+  function grabPiece(e, position) {
+    const element = e.target; // Extracting the div element (chess tile) from the React event.
 
-    // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
-    // DEBUG
-    // if (activePiece) {
-    //   let positionX = activePiece.style.left;
-    //   let positionY = activePiece.style.top;
-    //   console.log(
-    //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
-    //   );
-    // }
+    if (element.className === "piece-div") {
+      // Checking to see if we grabbed an actual piece
 
-    if (activePiece && activePiece.className === "piece-div") {
-      const mouseX = e.clientX;
-      const mouseY = e.clientY;
+      const { tileWidth, tileHeight } = getChessboardElements(); // Extracting only needed variables from function
+      setActivePieceOrigin(position); // Setting the origin of the active piece to a position (e.g. 'a1', 'e4')
 
-      activePiece.style.position = "absolute";
+      const mouseX = e.clientX; // Grabbing the x coordinates of the mouse
+      const mouseY = e.clientY; // Grabbing the y coordinates of the mouse
 
-      if (mouseX >= leftBound && mouseX <= rightBound)
-        activePiece.style.left = `${mouseX - tileWidth / 2}px`;
+      element.style.position = "absolute"; // Setting 'absolute' position (from null), somewhat 'unlocking' its position. It can now move anywhere on the board.
 
-      if (mouseY >= topBound && mouseY <= bottomBound)
-        activePiece.style.top = `${mouseY - tileHeight / 2}px`;
+      // Creating offset to center the piece with the mouse
+      element.style.top = `${mouseY - tileHeight / 2}px`;
+      element.style.left = `${mouseX - tileWidth / 2}px`;
+    }
+
+    setActivePiece(element); // Assigning the state variable.
+
+    /* Setting state variables happen asynchronously, so we try to assign them at the end.
+    For example, we couldn't assign it first then use activePiece as a variable because React might
+    use a previous state of that variable. */
+  }
+
+    /**
+   * Function to move the piece. This function runs multiple times a second.
+   * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
+   */
+    function movePiece(e) {
+      // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
+      // DEBUG
+      // if (activePiece) {
+      //   let positionX = activePiece.style.left;
+      //   let positionY = activePiece.style.top;
+      //   console.log(
+      //     coordinatesToFileAndRank(positionX, positionY, leftBound, topBound)
+      //   );
+      // }
+  
+      if (activePiece && activePiece.className === "piece-div") {
+        // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
+        const {
+          tileWidth,
+          tileHeight,
+          leftBound,
+          topBound,
+          rightBound,
+          bottomBound,
+        } = getChessboardElements();
+
+        const mouseX = e.clientX; // Getting the x coordinates of the mouse
+        const mouseY = e.clientY; // Getting the y coordinates of the mouse
+  
+        /* If the mouse is within the bounds, let the piece follow the center of the mouse */
+        if (mouseX >= leftBound && mouseX <= rightBound)
+          activePiece.style.left = `${mouseX - tileWidth / 2}px`;
+  
+        if (mouseY >= topBound && mouseY <= bottomBound)
+          activePiece.style.top = `${mouseY - tileHeight / 2}px`;
+      }
+    }
+
+  /**
+   * Function to drop the piece. This function runs once.
+   */
+  function dropPiece() {
+    if (activePiece) {
+      // Checking if we're holding a piece
+
+      const { leftBound, topBound } = getChessboardElements(); // Extracting only needed variables from function
+
+      let positionX = activePiece.style.left;
+      let positionY = activePiece.style.top;
+
+      const currentCoordinates = coordinatesToFileAndRank(
+        positionX,
+        positionY,
+        leftBound,
+        topBound
+      );
+
+      if (currentCoordinates && currentCoordinates !== activePieceOrigin)
+
+        setPiecePosition((prev) => {
+          /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
+          This automatically triggers a re-render (as it's a state variable) */
+          const oldCoordinates = prev[activePieceOrigin];
+          const updatedPosition = { ...prev }; /* Hard to figure piece of code that I documented in problems and solutions */
+          updatedPosition[currentCoordinates] = oldCoordinates;
+          updatedPosition[activePieceOrigin] = null;
+          return updatedPosition;
+        });
+      else {
+        /* If the piece is dropped in the same position or out of bounds, reset the piece */
+        activePiece.style.position = null;
+        activePiece.style.top = null;
+        activePiece.style.left = null;
+      }
+
+      setActivePiece(null); // Remove the active piece.
     }
   }
 
   useEffect(() => {
+    /* Upon loading the app, this should be the default position of the chess board */
     setPiecePosition({
       // Hashmap representing starting positions
       a1: "rook_w",
@@ -194,7 +269,7 @@ export const MovementProvider = ({ children, appRef }) => {
   }, []);
 
   return (
-    <MovementContext.Provider
+    <MovementContext.Provider // Providing function and variables for other components to use.
       value={{
         activePiece,
         activePieceOrigin,
