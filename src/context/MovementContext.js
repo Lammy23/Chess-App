@@ -18,7 +18,7 @@ export const MovementProvider = ({ children, appRef }) => {
 
   /**
    * This function returns various elements and properties of the chessboard div.
-   * TODO: The constants created here don't ever change so I should probably find a way to calculate them and store them somewhere.
+   * #TODO: The constants created here don't ever change so I should probably find a way to calculate them and store them somewhere. maybe useEffect would be helpful?
    * @returns Object containing the chessboard div, chess tile div, tile width, tile height, left bound, top bound, right bound and bottom bound
    */
   function getChessboardElements() {
