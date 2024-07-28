@@ -89,14 +89,16 @@ export default class referee {
 
     //Extracting the Rank from the coordinate given
     extractRank(coordinate) {
-        const match = coordinate.match(/\d+/);
+        const match = coordinate.match(/\d+/); //regular expression for splitting the coordinate
+        //Conditional for whether a match is found, returns the rank only if a match is found, null otherwise
         return match ? parseInt(match[0], 10) : null;
     }
 
     //Extracting the File from the coordinate given
     extractFile(coordinate) {
-        const match = coordinate.match(/[a-h]/);
-        return match ? match[0] : null;
+        const match = coordinate.match(/[a-h]/); //regular expression for splitting the coordinate
+        //Conditional for whether a match is found, returns the file only if a match is found, null otherwise
+        return match ? match[0] : null; 
     }
 
     //Turning the alphabetical value to a numerical value for easy calculations
@@ -111,6 +113,7 @@ export default class referee {
             'g': 7,
             'h': 8
         };
+        //Returns value if the corresponding key is found, null otherwise
         return fileMapping[file] || null;
     }
 }
