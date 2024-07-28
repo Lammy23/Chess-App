@@ -1,10 +1,26 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { files, ranks } from "../components/constants";
+import Referee from "../components/referee";
+
 const MovementContext = createContext(); // Creating the Context (Logic )
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
+
+// export const PieceType = { //List of Chess pieces used for determining the valid moves for referee
+//   KING: 'KING',
+//   QUEEN: 'QUEEN',
+//   BISHOP: 'BISHOP',
+//   KNIGHT: 'KNIGHT',
+//   ROOK: 'ROOK',
+//   PAWN: 'PAWN'
+// };
+
+// export const TeamType = {
+//   WHITE: 'WHITE',
+//   BLACK: 'BLACK',
+// }
 
 export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] =
@@ -15,6 +31,7 @@ export const MovementProvider = ({ children, appRef }) => {
     useState(null); /* The div element that is the active piece */
   const [activePieceOrigin, setActivePieceOrigin] =
     useState(""); /* The position string that the active piece came from */
+    const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   /**
    * This function returns various elements and properties of the chessboard div.
@@ -32,6 +49,7 @@ export const MovementProvider = ({ children, appRef }) => {
     const topBound = chessboardDiv.offsetTop; // Calculating the coordinates of the top edge of the board.
     const rightBound = leftBound + chessboardDiv.clientWidth; // "" "" of the right edge.
     const bottomBound = topBound + chessboardDiv.clientHeight; // "" "" of the bottom edge.
+    
 
     return {
       chessboardDiv,
@@ -179,19 +197,32 @@ export const MovementProvider = ({ children, appRef }) => {
         leftBound,
         topBound
       );
+      /* #TODO: NEED TO FIX THIS SO THAT THERE ISNT TWO REPEATED RESETS */
+      if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
+        // Get the piece type from the piecePosition state using the activePieceOrigin
+        const pieceType = piecePosition[activePieceOrigin]; //Accessing the hashmap to get the piece type
 
-      if (currentCoordinates && currentCoordinates !== activePieceOrigin)
-        setPiecePosition((prev) => {
-          /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
-          This automatically triggers a re-render (as it's a state variable) */
-          const oldCoordinates = prev[activePieceOrigin];
-          const updatedPosition = {
-            ...prev,
-          }; /* Hard to figure piece of code that I documented in problems and solutions */
-          updatedPosition[currentCoordinates] = oldCoordinates;
-          updatedPosition[activePieceOrigin] = null;
-          return updatedPosition;
-        });
+        /* Referee will check if the piece it is trying to place down is being dropped in a valid position
+        from its starting position */
+        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType)) {
+          setPiecePosition((prev) => {
+            /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
+            This automatically triggers a re-render (as it's a state variable) */
+            const oldCoordinates = prev[activePieceOrigin];
+            const updatedPosition = {
+              ...prev,
+            }; /* Hard to figure piece of code that I documented in problems and solutions */
+            updatedPosition[currentCoordinates] = oldCoordinates;
+            updatedPosition[activePieceOrigin] = null;
+            return updatedPosition;
+          });
+        } else {
+          /* If the piece is dropped in the same position or out of bounds, reset the piece */
+          activePiece.style.position = null;
+          activePiece.style.top = null;
+          activePiece.style.left = null;
+        }
+      }
       else {
         /* If the piece is dropped in the same position or out of bounds, reset the piece */
         activePiece.style.position = null;
