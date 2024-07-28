@@ -89,6 +89,7 @@ export const MovementProvider = ({ children, appRef }) => {
    * @param {String} position
    */
   function grabPiece(e, position) {
+    e.preventDefault();
     const element = e.target; // Extracting the div element (chess tile) from the React event.
 
     if (element.className === "piece-div") {
@@ -119,6 +120,7 @@ export const MovementProvider = ({ children, appRef }) => {
    * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
    */
   function movePiece(e) {
+    e.preventDefault();
     // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
     // DEBUG
     // if (activePiece) {
@@ -130,6 +132,7 @@ export const MovementProvider = ({ children, appRef }) => {
     // }
 
     if (activePiece && activePiece.className === "piece-div") {
+      console.log("Moving actual piece");
       // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
 
       // If no mouse button is clicked, drop the piece. This fixes the spam click bug.
