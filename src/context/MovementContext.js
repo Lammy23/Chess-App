@@ -186,26 +186,31 @@ export const MovementProvider = ({ children, appRef }) => {
         leftBound,
         topBound
       );
-
+      /* #TODO: NEED TO FIX THIS SO THAT THERE ISNT TWO REPEATED RESETS */
       if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
         // Get the piece type from the piecePosition state using the activePieceOrigin
         const pieceType = piecePosition[activePieceOrigin]; //Accessing the hashmap to get the piece type
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType);
-
-        setPiecePosition((prev) => {
-          /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
-          This automatically triggers a re-render (as it's a state variable) */
-          const oldCoordinates = prev[activePieceOrigin];
-          const updatedPosition = {
-            ...prev,
-          }; /* Hard to figure piece of code that I documented in problems and solutions */
-          updatedPosition[currentCoordinates] = oldCoordinates;
-          updatedPosition[activePieceOrigin] = null;
-          return updatedPosition;
-        });
+        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType)) {
+          setPiecePosition((prev) => {
+            /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
+            This automatically triggers a re-render (as it's a state variable) */
+            const oldCoordinates = prev[activePieceOrigin];
+            const updatedPosition = {
+              ...prev,
+            }; /* Hard to figure piece of code that I documented in problems and solutions */
+            updatedPosition[currentCoordinates] = oldCoordinates;
+            updatedPosition[activePieceOrigin] = null;
+            return updatedPosition;
+          });
+        } else {
+          /* If the piece is dropped in the same position or out of bounds, reset the piece */
+          activePiece.style.position = null;
+          activePiece.style.top = null;
+          activePiece.style.left = null;
+        }
       }
       else {
         /* If the piece is dropped in the same position or out of bounds, reset the piece */

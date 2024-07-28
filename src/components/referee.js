@@ -5,9 +5,9 @@ export default class referee {
     isValidMove(previousCoordinates, currentCoordinates, pieceType) {
         //DEBUG
         //Logging the coordinates and piece types
-        console.log("Previous Location: ", {previousCoordinates});
-        console.log("Current Location: ", {currentCoordinates});
-        console.log("Piece Type: ", {pieceType});
+        // console.log("Previous Location: ", {previousCoordinates});
+        // console.log("Current Location: ", {currentCoordinates});
+        // console.log("Piece Type: ", {pieceType});
         
         //#TODO: Might be a better way to extract from hashmap? 
         const previousFile = this.extractFile(previousCoordinates);
@@ -20,19 +20,22 @@ export default class referee {
             // Determining if the pawn moved is the first move made
             const isFirstMove = (pieceType === 'pawn_w' && previousRank === 2) || (pieceType === 'pawn_b' && previousRank === 7);
             if (isFirstMove) {
-                if (Math.abs(currentRank - previousRank) <= 2 && previousFile === currentFile) {
+                // LOL HARD CODED LOGIC FOR NOT ALLOWING PIECE TO CAPTURE ITS OWN PIECE HAHA
+                if ((currentRank - previousRank) <= 2 && (currentRank - previousRank) > 0 && previousFile === currentFile) {
                     // Implement logic for first move of pawn (moving 1 or 2 squares vertically)
                     console.log("FIRST MOVE");
+                    return true;
                 }
             } else {
-                if (Math.abs(currentRank - previousRank) === 1 && previousFile === currentFile) {
+                if ((currentRank - previousRank) === 1 && previousFile === currentFile) {
                     // Implement logic for normal move of pawn (moving 1 square vertically)
                     console.log("NOT FIRST MOVE");
+                    return true;
                 }
             }
 
         }
-        return true;        
+        return false;        
     }
 
     extractRank(coordinate) {
