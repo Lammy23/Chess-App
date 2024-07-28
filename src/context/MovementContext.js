@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { files, ranks } from "../components/constants";
 import Referee from "../components/referee";
-import referee from "../components/referee";
 
 const MovementContext = createContext(); // Creating the Context (Logic )
 
