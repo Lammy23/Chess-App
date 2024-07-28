@@ -17,6 +17,11 @@ export const useMovementContext = () => useContext(MovementContext);
 //   PAWN: 'PAWN'
 // };
 
+// export const TeamType = {
+//   WHITE: 'WHITE',
+//   BLACK: 'BLACK',
+// }
+
 export const MovementProvider = ({ children, appRef }) => {
   const [piecePosition, setPiecePosition] = useState(null);
   const [activePiece, setActivePiece] = useState(null);
@@ -188,7 +193,7 @@ export const MovementProvider = ({ children, appRef }) => {
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        referee.isValidMove(currentCoordinates, activePieceOrigin, pieceType);
+        referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType);
 
         setPiecePosition((prev) => {
           /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
