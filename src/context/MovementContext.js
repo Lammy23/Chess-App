@@ -23,13 +23,21 @@ export const useMovementContext = () => useContext(MovementContext);
 // }
 
 export const MovementProvider = ({ children, appRef }) => {
-  const [piecePosition, setPiecePosition] = useState(null);
-  const [activePiece, setActivePiece] = useState(null);
-  const [activePieceOrigin, setActivePieceOrigin] = useState("a1");
-  const referee = new Referee(); //Instance of referee to check the movement of pieces
+  const [piecePosition, setPiecePosition] =
+    useState(
+      null
+    ); /* A Hashmap representing starting positions. New positions can be added dynamically */
+  const [activePiece, setActivePiece] =
+    useState(null); /* The div element that is the active piece */
+  const [activePieceOrigin, setActivePieceOrigin] =
+    useState(""); /* The position string that the active piece came from */
+    const referee = new Referee(); //Instance of referee to check the movement of pieces
 
-  
-
+  /**
+   * This function returns various elements and properties of the chessboard div.
+   * #TODO: The constants created here don't ever change so I should probably find a way to calculate them and store them somewhere. maybe useEffect would be helpful?
+   * @returns Object containing the chessboard div, chess tile div, tile width, tile height, left bound, top bound, right bound and bottom bound
+   */
   function getChessboardElements() {
     const chessboardDiv = appRef.current.children[0].children[0]; // Extracting the chessboard div
     const chesstileDiv = chessboardDiv.children[0]; // Extracting the first chess tile div.
@@ -99,6 +107,7 @@ export const MovementProvider = ({ children, appRef }) => {
    * @param {String} position
    */
   function grabPiece(e, position) {
+    e.preventDefault();
     const element = e.target; // Extracting the div element (chess tile) from the React event.
 
     if (element.className === "piece-div") {
@@ -129,6 +138,7 @@ export const MovementProvider = ({ children, appRef }) => {
    * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
    */
   function movePiece(e) {
+    e.preventDefault();
     // In true baller fashion, we want to print the position (file + rank) that the piece is hovering on
     // DEBUG
     // if (activePiece) {
@@ -140,6 +150,7 @@ export const MovementProvider = ({ children, appRef }) => {
     // }
 
     if (activePiece && activePiece.className === "piece-div") {
+      console.log("Moving actual piece");
       // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
 
       // If no mouse button is clicked, drop the piece. This fixes the spam click bug.
