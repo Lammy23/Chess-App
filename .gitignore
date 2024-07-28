@@ -4,7 +4,15 @@
 /node_modules
 /.pnp
 .pnp.js
-./package-lock.json
+package-lock.json 
+
+# If we have a folder, when we include it like
+#
+# /folder_name
+#
+# but if we have a file, we include it like
+#
+# file_name
 
 # testing
 /coverage

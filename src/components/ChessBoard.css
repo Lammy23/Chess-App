@@ -3,12 +3,6 @@
     grid-template-columns: repeat(8, 70px);
     width: 560px;
     height: 560px;
-    background-color: #4e7598; /* backdrop */
-  }
+    background-color: red; /* backdrop */
 
-#piece {
-    display: flex;
-    place-content: center;
-    width: 50px;
-    height: 50px;
   }
