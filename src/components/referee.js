@@ -1,6 +1,3 @@
-// import React, { useRef } from "react";
-// import { PieceType } from "../context/MovementContext";
-
 export default class referee {
     // Helper function for determing if a piece is occupying a certain tile
     tileIsOccupied(tileX, tileY, boardState) {
@@ -16,15 +13,15 @@ export default class referee {
         }
         return true;
     }
-
+    //#SUGGESTION: Change all if statements to else ifs
     isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
         // #DEBUGGING
         // Logging the coordinates and piece types
-        // console.log("Previous Location: ", {previousCoordinates});
-        // console.log("Current Location: ", {currentCoordinates});
-        // console.log("Piece Type: ", {pieceType});
+        console.log("Previous Location: ", {previousCoordinates});
+        console.log("Current Location: ", {currentCoordinates});
+        console.log("Piece Type: ", {pieceType});
         
-        //#TODO: Might be a better way to extract from hashmap? 
+        //#SUGGESTION: Might be a better way to extract from hashmap? 
         const previousFile = this.extractFile(previousCoordinates);
         const previousRank = this.extractRank(previousCoordinates);
         const currentFile = this.extractFile(currentCoordinates);
@@ -39,6 +36,7 @@ export default class referee {
         const pawnDirection = (teamColour === 'WHITE') ? 1 : -1;
 
         //Pawn Logic
+        //#SUGGESTION: tileIsOccupied and tileIsOccupiedByOpponent is possibly redundant?
         if (previousRank === specialRank && currentRank - previousRank === (2 * pawnDirection) && previousFile === currentFile) {
             if(!this.tileIsOccupied(currentFile, currentRank - pawnDirection, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
                 // Pawn direction depending on black or white will do either +1 or -1
@@ -55,6 +53,10 @@ export default class referee {
             if(this.tileIsOccupied(currentFile, currentRank, boardState) && this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
                 return true;
             }
+            // #TODO: Discuss how we will want to implement this
+            // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
+            //     return true;
+            // }
         }
 
         //#TODO: Pieces do not care about whether or not there is a piece in front of it
@@ -72,11 +74,32 @@ export default class referee {
             }
         }
 
-        //Logic for Bishop movement (does not care if a piece is in front of it right now)
+        //Bishop Movement Logic (some reason it can move one square up LOL)
         if(pieceType === 'bishop_w' || pieceType === 'bishop_b') {
             //The difference in files MUST BE SAME as difference in ranks for a valid bishop move
             if(Math.abs(currentFileNumber - previousFileNumber) === Math.abs(currentRank - previousRank)) {
-                return true;
+                // Figuring out whether the bishop is moving up diagonally or down diagonally
+                // const directionX = (currentFileNumber - previousFileNumber > 0) ? 1 : -1
+                // const directionY = (currentRank - previousRank > 0) ? 1 : -1
+                // IGNORE ABOVE COMMENT, I DISREGARDED DIRECTION
+
+                // Forces it to compare using either the currentCoordinates or previousCoordinates depending
+                // on whether it is moving up or down diagonally
+                const minFile = Math.min(currentFileNumber, previousFileNumber);
+                const minRank = Math.min(currentRank, previousRank);
+                for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
+                    if(this.tileIsOccupied(this.numberToFile(minFile + i), minRank + i, boardState)) {
+                        // console.log(this.numberToFile(minFile + i));
+                        // console.log(minRank + i);
+                        return false;
+                    }
+                }
+                // If it is occupied, then it must be either the same or opposing colour
+                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
+                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                    return true;
+                }
             }
         }
 
@@ -107,6 +130,16 @@ export default class referee {
             return true;
         }
         return false;        
+    }
+
+    //Determining if the move from a pawn can use En Passant
+    validEnPassant(tileX, tileY, boardState, TeamType) {
+        const tileKey = `${tileX}${tileY}`;
+        const attackableOpposingPawn = (TeamType === 'WHITE') ? 'pawn_b' : 'pawn_w'; 
+        if(boardState[tileKey] === attackableOpposingPawn) {
+            return true;
+        }
+        return false;
     }
 
     //Extracting the Rank from the coordinate given
@@ -147,6 +180,21 @@ export default class referee {
         };
         //Returns value if the corresponding key is found, null otherwise
         return fileMapping[file] || null;
+    }
+    //Turning a numerical value to a alphabetical value for easy calculations
+    numberToFile(number) {
+        const numberMapping = {
+            1: 'a',
+            2: 'b',
+            3: 'c',
+            4: 'd',
+            5: 'e',
+            6: 'f',
+            7: 'g',
+            8: 'h'      
+          };
+        //Returns value if the corresponding key is found, null otherwise
+        return numberMapping[number] || null;
     }
 }
     
