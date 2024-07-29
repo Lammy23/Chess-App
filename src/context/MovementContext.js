@@ -204,7 +204,7 @@ export const MovementProvider = ({ children, appRef }) => {
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType)) {
+        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType, piecePosition)) {
           setPiecePosition((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */

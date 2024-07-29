@@ -2,7 +2,12 @@
 // import { PieceType } from "../context/MovementContext";
 
 export default class referee {
-    isValidMove(previousCoordinates, currentCoordinates, pieceType) {
+    tileIsOccupied(tileX, tileY, boardState) {
+        const tileKey = `${tileX}${tileY}`;
+        return boardState[tileKey] !== undefined && boardState[tileKey] !== null;
+    }
+
+    isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
         //DEBUG
         //Logging the coordinates and piece types
         console.log("Previous Location: ", {previousCoordinates});
@@ -17,34 +22,34 @@ export default class referee {
         const previousFileNumber = this.fileToNumber(previousFile);
         const currentFileNumber = this.fileToNumber(currentFile);
 
-        //Logic for white pawn movement (does not include attacking)
+        //Logic for White pawn movement (does not include attacking)
         if(pieceType === 'pawn_w') {
-            // Determining if the pawn moved is the first move made
-            const isFirstMove = (pieceType === 'pawn_w' && previousRank === 2);
-            if (isFirstMove) {
-                // The greater than 0 part ensures piece can't go backwards on first move to capture own piece
-                if ((currentRank - previousRank) <= 2 && (currentRank - previousRank) > 0 && previousFile === currentFile) {
-                    // Implement logic for first move of pawn (moving 1 or 2 squares vertically)
+            // First move for pawn and they are moving 2 squares up
+            if (previousRank === 2 && (currentRank - previousRank) === 2  && previousFile === currentFile) {
+                // Ensures that if there is a piece blocking the way of the pawn to its destination, it will not allow it
+                if(!this.tileIsOccupied(currentFile, currentRank - 1, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    // -1 since it needs to check if there is anything one tile behind it and also if anything is on the tile it wants to go to
                     return true;
-                }
+                }   
             } else {
+                // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
                 if ((currentRank - previousRank) === 1 && previousFile === currentFile) {
-                    // Implement logic for normal move of pawn (moving 1 square vertically)
-                    return true;
+                    if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                        return true;
+                    }
                 }
             }
-            // Separate logic for black pawns. The logic is the same, but all calculations are done in reverse
+        // Separate logic for black pawns. The logic is the same, but all calculations are done in reverse with respect to black's perspective
         } else if (pieceType === 'pawn_b') {
-            const isFirstMove = (pieceType === 'pawn_b' && previousRank === 7);
-            if (isFirstMove) {
-                if ((previousRank - currentRank) <= 2 && (previousRank - currentRank) > 0 && previousFile === currentFile) {
-                    // Implement logic for first move of pawn (moving 1 or 2 squares vertically)
+            if (previousRank === 7 && (previousRank - currentRank) === 2  && previousFile === currentFile) {
+                if(!this.tileIsOccupied(currentFile, currentRank + 1, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
                     return true;
                 }
             } else {
                 if ((previousRank - currentRank) === 1 && previousFile === currentFile) {
-                    // Implement logic for normal move of pawn (moving 1 square vertically)
-                    return true;
+                    if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                        return true;
+                    }
                 }
             }
         }
