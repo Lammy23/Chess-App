@@ -51,6 +51,7 @@ export default class referee {
         } else if (currentRank - previousRank === pawnDirection && Math.abs(currentFileNumber - previousFileNumber) === 1) {
             //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
             if(this.tileIsOccupied(currentFile, currentRank, boardState) && this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                console.log("HOW");
                 return true;
             }
             // #TODO: Discuss how we will want to implement this
@@ -74,23 +75,17 @@ export default class referee {
             }
         }
 
-        //Bishop Movement Logic (some reason it can move one square up LOL)
+        //Bishop Movement Logic (some reason it can move one square up)
         if(pieceType === 'bishop_w' || pieceType === 'bishop_b') {
             //The difference in files MUST BE SAME as difference in ranks for a valid bishop move
             if(Math.abs(currentFileNumber - previousFileNumber) === Math.abs(currentRank - previousRank)) {
-                // Figuring out whether the bishop is moving up diagonally or down diagonally
-                // const directionX = (currentFileNumber - previousFileNumber > 0) ? 1 : -1
-                // const directionY = (currentRank - previousRank > 0) ? 1 : -1
-                // IGNORE ABOVE COMMENT, I DISREGARDED DIRECTION
-
                 // Forces it to compare using either the currentCoordinates or previousCoordinates depending
                 // on whether it is moving up or down diagonally
                 const minFile = Math.min(currentFileNumber, previousFileNumber);
                 const minRank = Math.min(currentRank, previousRank);
                 for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
                     if(this.tileIsOccupied(this.numberToFile(minFile + i), minRank + i, boardState)) {
-                        // console.log(this.numberToFile(minFile + i));
-                        // console.log(minRank + i);
+                        // console.log(boardState);
                         return false;
                     }
                 }
@@ -102,14 +97,36 @@ export default class referee {
                 }
             }
         }
-
-        //Logic for Rook movement
+        //SUGGESTION: Can condense this code
+        //Rook Movement Logic
         if(pieceType === 'rook_w' || pieceType === 'rook_b') {
             // Must stay in the same file or same rank for movement
             if(currentFile === previousFile) {
-                return true;
+                // Vertical Movement
+                for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
+                    if(this.tileIsOccupied(currentFile, Math.min(currentRank, previousRank) + i, boardState)) {
+                        return false;
+                    }
+                }
+                // If it is occupied, then it must be either the same or opposing colour
+                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
+                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                    return true;
+                }
             } else if (currentRank === previousRank) {
-                return true;
+                // Horizontal Movement
+                for (let i = 1; i < Math.abs(currentFileNumber - previousFileNumber); i++) {
+                    if(this.tileIsOccupied(this.numberToFile(Math.min(currentFileNumber, previousFileNumber) + i), currentRank, boardState)) {
+                        return false;
+                    }
+                }
+                // If it is occupied, then it must be either the same or opposing colour
+                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
+                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                    return true;
+                }
             }
         }
 
