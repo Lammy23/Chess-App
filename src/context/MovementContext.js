@@ -197,14 +197,13 @@ export const MovementProvider = ({ children, appRef }) => {
         leftBound,
         topBound
       );
-      /* #TODO: NEED TO FIX THIS SO THAT THERE ISNT TWO REPEATED RESETS */
+
       if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
         // Get the piece type from the piecePosition state using the activePieceOrigin
         const pieceType = piecePosition[activePieceOrigin]; //Accessing the hashmap to get the piece type
-
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType)) {
+        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType, piecePosition)) {
           setPiecePosition((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */
@@ -216,20 +215,12 @@ export const MovementProvider = ({ children, appRef }) => {
             updatedPosition[activePieceOrigin] = null;
             return updatedPosition;
           });
-        } else {
-          /* If the piece is dropped in the same position or out of bounds, reset the piece */
-          activePiece.style.position = null;
-          activePiece.style.top = null;
-          activePiece.style.left = null;
         }
       }
-      else {
-        /* If the piece is dropped in the same position or out of bounds, reset the piece */
-        activePiece.style.position = null;
-        activePiece.style.top = null;
-        activePiece.style.left = null;
-      }
-
+      // Will reset piece if the position isn't updated
+      activePiece.style.position = null;
+      activePiece.style.top = null;
+      activePiece.style.left = null;
       setActivePiece(null); // Remove the active piece.
     }
   }
@@ -237,7 +228,7 @@ export const MovementProvider = ({ children, appRef }) => {
   useEffect(() => {
     /* Upon loading the app, this should be the default position of the chess board */
     setPiecePosition({
-      // Hashmap representing starting positions
+      // Hashmap representing starting positions, will update every position for each piece when moved
       a1: "rook_w",
       b1: "knight_w",
       c1: "bishop_w",
