@@ -7,8 +7,12 @@ export default class referee {
         return boardState[tileKey] !== undefined && boardState[tileKey] !== null;
     }
 
+    tileIsOccupiedByOpponent(tileX, tileY, boardState, TeamType) {
+
+    }
+
     isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
-        //DEBUG
+        //#DEBUGGING
         //Logging the coordinates and piece types
         console.log("Previous Location: ", {previousCoordinates});
         console.log("Current Location: ", {currentCoordinates});
@@ -22,51 +26,31 @@ export default class referee {
         const previousFileNumber = this.fileToNumber(previousFile);
         const currentFileNumber = this.fileToNumber(currentFile);
 
-        // #TODO: Condense the below code by using a conditional instead of repeating the code for both black and white 
-        // if(pieceType === 'pawn_w') {
-        //     const specialRank = 2;
-        // } else if (pieceType === 'pawn_b') {
+        // Team colour can only be black or white
+        const teamColour = this.extractTeamColour(pieceType);
+        // Below 2 lines are for if its a white or black pawn
+        const specialRank = (teamColour === 'WHITE') ? 2 : 7; 
+        const pawnDirection = (teamColour === 'WHITE') ? 1 : -1;
 
-        // }
-
-        //White Pawn Logic
-        if(pieceType === 'pawn_w') {
-            // MOVEMENT LOGIC
-            // First move for pawn and they are moving 2 squares up
-            if (previousRank === 2 && (currentRank - previousRank) === 2  && previousFile === currentFile) {
-                // Ensures that if there is a piece blocking the way of the pawn to its destination, it will not allow it
-                if(!this.tileIsOccupied(currentFile, currentRank - 1, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    // -1 since it needs to check if there is anything one tile behind it and also if anything is on the tile it wants to go to
-                    return true;
-                }   
-            } else if ((currentRank - previousRank) === 1 && previousFile === currentFile) {
-                // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
-                if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                }
-            // ATTACKING LOGIC
-            } else if (currentRank - previousRank === 1 && Math.abs(currentFileNumber - previousFileNumber) === 1) {
-                //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
-                if(this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                }
+        //Pawn Logic
+        if (previousRank === specialRank && currentRank - previousRank === (2 * pawnDirection) && previousFile === currentFile) {
+            if(!this.tileIsOccupied(currentFile, currentRank - pawnDirection, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                // Pawn direction depending on black or white will do either +1 or -1
+                return true;
+            }   
+        } else if ((currentRank - previousRank) === pawnDirection && previousFile === currentFile) {
+            // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
+            if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                return true;
             }
-        // Separate logic for black pawns. The logic is the same, but all calculations are done in reverse with respect to black's perspective
-        } else if (pieceType === 'pawn_b') {
-            if (previousRank === 7 && (currentRank - previousRank) === -2  && previousFile === currentFile) {
-                if(!this.tileIsOccupied(currentFile, currentRank + 1, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                }
-            } else if ((currentRank - previousRank) === -1 && previousFile === currentFile) {
-                if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                }
-            } else if (currentRank - previousRank === -1 && Math.abs(currentFileNumber - previousFileNumber) === 1) {
-                if(this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                }
+        // ATTACKING LOGIC
+        } else if (currentRank - previousRank === pawnDirection && Math.abs(currentFileNumber - previousFileNumber) === 1) {
+            //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
+            if(this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                return true;
             }
         }
+
         //#TODO: Pieces do not care about whether or not there is a piece in front of it
         //Logic for King movement
         if(pieceType === 'king_w' || pieceType === 'king_b') {
@@ -133,6 +117,16 @@ export default class referee {
         return match ? match[0] : null; 
     }
 
+    //Extracts the team colour based on the piece given
+    extractTeamColour(pieceType) {
+        if(pieceType.includes('_w')) {
+            return 'WHITE';
+        } else if (pieceType.includes('_b')) {
+            return 'BLACK';
+        }
+        //Returns null if some piece does not follow the naming convention
+        return null;
+    }
     //Turning the alphabetical value to a numerical value for easy calculations
     fileToNumber(file) {
         const fileMapping = {
