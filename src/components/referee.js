@@ -22,6 +22,13 @@ export default class referee {
         const previousFileNumber = this.fileToNumber(previousFile);
         const currentFileNumber = this.fileToNumber(currentFile);
 
+        // #TODO: Condense the below code by using a conditional instead of repeating the code for both black and white 
+        // if(pieceType === 'pawn_w') {
+        //     const specialRank = 2;
+        // } else if (pieceType === 'pawn_b') {
+
+        // }
+
         //Logic for White pawn movement (does not include attacking)
         if(pieceType === 'pawn_w') {
             // First move for pawn and they are moving 2 squares up
