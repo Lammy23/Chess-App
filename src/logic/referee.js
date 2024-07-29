@@ -1,11 +1,27 @@
+import { isPawnMove } from "./rules/pawnRules";
+
 export default class referee {
-  // Helper function for determing if a piece is occupying a certain tile
+  /**
+   * Helper function for determing if a piece is occupying a certain tile
+   * @param {string} tileX
+   * @param {number} tileY
+   * @param {object} boardState
+   * @returns {boolean} true if the tile is occupied, false otherwise
+   */
   tileIsOccupied(tileX, tileY, boardState) {
     const tileKey = `${tileX}${tileY}`;
+    //If the tile is not empty, then it is occupied
     return boardState[tileKey] !== undefined && boardState[tileKey] !== null;
   }
 
-  // Helper function for determining if the tile being attacked is the same colour as the piece attacking it
+  /**
+   * Helper function for determining if the tile being attacked is the same colour as the piece attacking it
+   * @param {string} tileX
+   * @param {number} tileY
+   * @param {object} boardState
+   * @param {string} TeamType
+   * @returns {boolean} true if the tile is occupied by an opponent, false otherwise
+   */
   tileIsOccupiedByOpponent(tileX, tileY, boardState, TeamType) {
     const tileKey = `${tileX}${tileY}`;
     if (this.extractTeamColour(boardState[tileKey]) === TeamType) {
@@ -13,13 +29,23 @@ export default class referee {
     }
     return true;
   }
+
   //#SUGGESTION: Change all if statements to else ifs
+
+  /**
+   * Determines if a move is valid based on the coordinates, piece type and the board state
+   * @param {string} previousCoordinates
+   * @param {string} currentCoordinates
+   * @param {string} pieceType
+   * @param {object} boardState
+   * @returns {boolean} true if the move is valid, false otherwise
+   */
   isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
     // #DEBUGGING
     // Logging the coordinates and piece types
-    console.log("Previous Location: ", { previousCoordinates });
-    console.log("Current Location: ", { currentCoordinates });
-    console.log("Piece Type: ", { pieceType });
+    // console.log("Previous Location: ", { previousCoordinates });
+    // console.log("Current Location: ", { currentCoordinates });
+    // console.log("Piece Type: ", { pieceType });
 
     //#SUGGESTION: Might be a better way to extract from hashmap?
     const previousFile = this.extractFile(previousCoordinates);
@@ -31,59 +57,20 @@ export default class referee {
 
     // Team colour can only be black or white
     const teamColour = this.extractTeamColour(pieceType);
-    // Below 2 lines are for if its a white or black pawn
-    const specialRank = teamColour === "WHITE" ? 2 : 7;
-    const pawnDirection = teamColour === "WHITE" ? 1 : -1;
+ 
 
-    //Pawn Logic
-    //#SUGGESTION: tileIsOccupied and tileIsOccupiedByOpponent is possibly redundant?
-    if (
-      previousRank === specialRank &&
-      currentRank - previousRank === 2 * pawnDirection &&
-      previousFile === currentFile
-    ) {
-      if (
-        !this.tileIsOccupied(
-          currentFile,
-          currentRank - pawnDirection,
-          boardState
-        ) &&
-        !this.tileIsOccupied(currentFile, currentRank, boardState)
-      ) {
-        // Pawn direction depending on black or white will do either +1 or -1
-        return true;
-      }
-    } else if (
-      currentRank - previousRank === pawnDirection &&
-      previousFile === currentFile
-    ) {
-      // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
-      if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-        return true;
-      }
-      // ATTACKING LOGIC
-    } else if (
-      currentRank - previousRank === pawnDirection &&
-      Math.abs(currentFileNumber - previousFileNumber) === 1
-    ) {
-      //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
-      if (
-        this.tileIsOccupied(currentFile, currentRank, boardState) &&
-        this.tileIsOccupiedByOpponent(
-          currentFile,
-          currentRank,
-          boardState,
-          teamColour
-        )
-      ) {
-        console.log("HOW");
-        return true;
-      }
-      // #TODO: Discuss how we will want to implement this
-      // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
-      //     return true;
-      // }
+    /*  
+    Three layers:
+    1. Is a valid normal move
+    2. Are we in check? If so does this move get us out of check
+    3. Are we checkmated?
+
+
+    */
+    if (pieceType === "pawn_w" || pieceType === "pawn_b") {
+      isPawnMove()
     }
+
 
     //#TODO: Pieces do not care about whether or not there is a piece in front of it
     //Logic for King movement
@@ -322,7 +309,14 @@ export default class referee {
 
       if (verticalL || horizontalL) {
         if (this.tileIsOccupied(currentFile, currentRank, boardState)) {
-          if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+          if (
+            this.tileIsOccupiedByOpponent(
+              currentFile,
+              currentRank,
+              boardState,
+              teamColour
+            )
+          ) {
             return true;
           }
           return false;
