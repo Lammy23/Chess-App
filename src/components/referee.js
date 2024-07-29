@@ -2,18 +2,24 @@
 // import { PieceType } from "../context/MovementContext";
 
 export default class referee {
+    // Helper function for determing if a piece is occupying a certain tile
     tileIsOccupied(tileX, tileY, boardState) {
         const tileKey = `${tileX}${tileY}`;
         return boardState[tileKey] !== undefined && boardState[tileKey] !== null;
     }
 
+    // Helper function for determining if the tile being attacked is the same colour as the piece attacking it
     tileIsOccupiedByOpponent(tileX, tileY, boardState, TeamType) {
-
+        const tileKey = `${tileX}${tileY}`;
+        if(this.extractTeamColour(boardState[tileKey]) === TeamType) {
+            return false;
+        }
+        return true;
     }
 
     isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
-        //#DEBUGGING
-        //Logging the coordinates and piece types
+        // #DEBUGGING
+        // Logging the coordinates and piece types
         console.log("Previous Location: ", {previousCoordinates});
         console.log("Current Location: ", {currentCoordinates});
         // console.log("Piece Type: ", {pieceType});
@@ -46,7 +52,7 @@ export default class referee {
         // ATTACKING LOGIC
         } else if (currentRank - previousRank === pawnDirection && Math.abs(currentFileNumber - previousFileNumber) === 1) {
             //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
-            if(this.tileIsOccupied(currentFile, currentRank, boardState)) {
+            if(this.tileIsOccupied(currentFile, currentRank, boardState) && this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
                 return true;
             }
         }
