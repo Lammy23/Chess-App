@@ -5,8 +5,8 @@ export default class referee {
     isValidMove(previousCoordinates, currentCoordinates, pieceType) {
         //DEBUG
         //Logging the coordinates and piece types
-        // console.log("Previous Location: ", {previousCoordinates});
-        // console.log("Current Location: ", {currentCoordinates});
+        console.log("Previous Location: ", {previousCoordinates});
+        console.log("Current Location: ", {currentCoordinates});
         // console.log("Piece Type: ", {pieceType});
         
         //#TODO: Might be a better way to extract from hashmap? 
@@ -18,18 +18,31 @@ export default class referee {
         const currentFileNumber = this.fileToNumber(currentFile);
 
         //Logic for white pawn movement (does not include attacking)
-        //#TODO: Nothing works for black pawns currently
-        if(pieceType === 'pawn_w' || pieceType === 'pawn_b') {
+        if(pieceType === 'pawn_w') {
             // Determining if the pawn moved is the first move made
-            const isFirstMove = (pieceType === 'pawn_w' && previousRank === 2) || (pieceType === 'pawn_b' && previousRank === 7);
+            const isFirstMove = (pieceType === 'pawn_w' && previousRank === 2);
             if (isFirstMove) {
-                // LOL HARD CODED LOGIC FOR NOT ALLOWING PIECE TO CAPTURE ITS OWN PIECE HAHA
+                // The greater than 0 part ensures piece can't go backwards on first move to capture own piece
                 if ((currentRank - previousRank) <= 2 && (currentRank - previousRank) > 0 && previousFile === currentFile) {
                     // Implement logic for first move of pawn (moving 1 or 2 squares vertically)
                     return true;
                 }
             } else {
                 if ((currentRank - previousRank) === 1 && previousFile === currentFile) {
+                    // Implement logic for normal move of pawn (moving 1 square vertically)
+                    return true;
+                }
+            }
+            // Separate logic for black pawns. The logic is the same, but all calculations are done in reverse
+        } else if (pieceType === 'pawn_b') {
+            const isFirstMove = (pieceType === 'pawn_b' && previousRank === 7);
+            if (isFirstMove) {
+                if ((previousRank - currentRank) <= 2 && (previousRank - currentRank) > 0 && previousFile === currentFile) {
+                    // Implement logic for first move of pawn (moving 1 or 2 squares vertically)
+                    return true;
+                }
+            } else {
+                if ((previousRank - currentRank) === 1 && previousFile === currentFile) {
                     // Implement logic for normal move of pawn (moving 1 square vertically)
                     return true;
                 }
