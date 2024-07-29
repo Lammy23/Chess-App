@@ -20,8 +20,8 @@ export default class referee {
     isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
         // #DEBUGGING
         // Logging the coordinates and piece types
-        console.log("Previous Location: ", {previousCoordinates});
-        console.log("Current Location: ", {currentCoordinates});
+        // console.log("Previous Location: ", {previousCoordinates});
+        // console.log("Current Location: ", {currentCoordinates});
         // console.log("Piece Type: ", {pieceType});
         
         //#TODO: Might be a better way to extract from hashmap? 
