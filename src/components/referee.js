@@ -37,27 +37,29 @@ export default class referee {
 
         //Pawn Logic
         //#SUGGESTION: tileIsOccupied and tileIsOccupiedByOpponent is possibly redundant?
-        if (previousRank === specialRank && currentRank - previousRank === (2 * pawnDirection) && previousFile === currentFile) {
-            if(!this.tileIsOccupied(currentFile, currentRank - pawnDirection, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                // Pawn direction depending on black or white will do either +1 or -1
-                return true;
-            }   
-        } else if ((currentRank - previousRank) === pawnDirection && previousFile === currentFile) {
-            // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
-            if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                return true;
+        if(pieceType === 'pawn_w' || pieceType === 'pawn_b') {
+            if (previousRank === specialRank && currentRank - previousRank === (2 * pawnDirection) && previousFile === currentFile) {
+                if(!this.tileIsOccupied(currentFile, currentRank - pawnDirection, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    // Pawn direction depending on black or white will do either +1 or -1
+                    return true;
+                }   
+            } else if ((currentRank - previousRank) === pawnDirection && previousFile === currentFile) {
+                // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
+                if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
+                }
+            // ATTACKING LOGIC
+            } else if (currentRank - previousRank === pawnDirection && Math.abs(currentFileNumber - previousFileNumber) === 1) {
+                //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
+                if(this.tileIsOccupied(currentFile, currentRank, boardState) && this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                    console.log("HOW");
+                    return true;
+                }
+                // #TODO: Discuss how we will want to implement this
+                // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
+                //     return true;
+                // }
             }
-        // ATTACKING LOGIC
-        } else if (currentRank - previousRank === pawnDirection && Math.abs(currentFileNumber - previousFileNumber) === 1) {
-            //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
-            if(this.tileIsOccupied(currentFile, currentRank, boardState) && this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-                console.log("HOW");
-                return true;
-            }
-            // #TODO: Discuss how we will want to implement this
-            // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
-            //     return true;
-            // }
         }
 
         //#TODO: Pieces do not care about whether or not there is a piece in front of it
@@ -75,7 +77,7 @@ export default class referee {
             }
         }
 
-        //Bishop Movement Logic (some reason it can move one square up)
+        //Bishop Movement Logic 
         if(pieceType === 'bishop_w' || pieceType === 'bishop_b') {
             //The difference in files MUST BE SAME as difference in ranks for a valid bishop move
             if(Math.abs(currentFileNumber - previousFileNumber) === Math.abs(currentRank - previousRank)) {
