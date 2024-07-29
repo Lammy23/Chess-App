@@ -29,8 +29,9 @@ export default class referee {
 
         // }
 
-        //Logic for White pawn movement (does not include attacking)
+        //White Pawn Logic
         if(pieceType === 'pawn_w') {
+            // MOVEMENT LOGIC
             // First move for pawn and they are moving 2 squares up
             if (previousRank === 2 && (currentRank - previousRank) === 2  && previousFile === currentFile) {
                 // Ensures that if there is a piece blocking the way of the pawn to its destination, it will not allow it
@@ -38,25 +39,31 @@ export default class referee {
                     // -1 since it needs to check if there is anything one tile behind it and also if anything is on the tile it wants to go to
                     return true;
                 }   
-            } else {
+            } else if ((currentRank - previousRank) === 1 && previousFile === currentFile) {
                 // Can treat the move as isNotAFirstMove if the pawn decides it wants to go 1 tile instead of 2 on its first move
-                if ((currentRank - previousRank) === 1 && previousFile === currentFile) {
-                    if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                        return true;
-                    }
+                if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
+                }
+            // ATTACKING LOGIC
+            } else if (currentRank - previousRank === 1 && Math.abs(currentFileNumber - previousFileNumber) === 1) {
+                //If a piece is in the diagonal, it will be allowed to attack, otherwise it won't
+                if(this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
                 }
             }
         // Separate logic for black pawns. The logic is the same, but all calculations are done in reverse with respect to black's perspective
         } else if (pieceType === 'pawn_b') {
-            if (previousRank === 7 && (previousRank - currentRank) === 2  && previousFile === currentFile) {
+            if (previousRank === 7 && (currentRank - previousRank) === -2  && previousFile === currentFile) {
                 if(!this.tileIsOccupied(currentFile, currentRank + 1, boardState) && !this.tileIsOccupied(currentFile, currentRank, boardState)) {
                     return true;
                 }
-            } else {
-                if ((previousRank - currentRank) === 1 && previousFile === currentFile) {
-                    if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                        return true;
-                    }
+            } else if ((currentRank - previousRank) === -1 && previousFile === currentFile) {
+                if(!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
+                }
+            } else if (currentRank - previousRank === -1 && Math.abs(currentFileNumber - previousFileNumber) === 1) {
+                if(this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                    return true;
                 }
             }
         }
