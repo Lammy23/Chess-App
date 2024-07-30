@@ -23,6 +23,7 @@ export default class Referee {
       currentFile: this.extractFile(currentCoordinates),
       currentRank: this.extractRank(currentCoordinates),
       teamColour: this.extractTeamColour(pieceType),
+      pieceType: pieceType,
       boardState: boardState,
     };
 
@@ -85,6 +86,10 @@ export default class Referee {
 
     // #DEBUGGING
     // Logging the coordinates and piece types
+    // let previousCoordinates =
+    //   this.#refContext.previousFile + this.#refContext.previousRank;
+    // let currentCoordinates =
+    //   this.#refContext.currentFile + this.#refContext.currentRank;
     // console.log("Previous Location: ", { previousCoordinates });
     // console.log("Current Location: ", { currentCoordinates });
     // console.log("Piece Type: ", { pieceType });
@@ -95,10 +100,10 @@ export default class Referee {
     2. Are we in check? If so does this move get us out of check
     3. Are we checkmated?
     */
-
+   
     if (pieceType === "pawn_w" || pieceType === "pawn_b") {
       // Checking pawn move
-      console.log("Hello")
+      console.log("Hello");
       return this.isPawnMove();
     }
 
