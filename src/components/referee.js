@@ -62,19 +62,25 @@ export default class referee {
             }
         }
 
-        //#TODO: Pieces do not care about whether or not there is a piece in front of it
         //Logic for King movement
         if(pieceType === 'king_w' || pieceType === 'king_b') {
             // Diagonal Movement
             if(Math.abs(currentFileNumber - previousFileNumber) === 1 && Math.abs(currentRank - previousRank) === 1) {
-                return true;
+                
             } else if (Math.abs(currentRank - previousRank) === 1 && previousFile === currentFile) { 
-                // Vertical Movement
-                return true;
+ 
             } else if (Math.abs(currentFileNumber - previousFileNumber) === 1 && previousRank === currentRank) {
-                // Horizontal Movement
-                return true;
+
+            } else {
+                return false;
             }
+            // Horizontal Movement
+            // If it is occupied, then it must be either the same or opposing colour
+            if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                return true;
+            } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                return true;
+            } 
         }
 
         if(pieceType === 'bishop_w' || pieceType === 'bishop_b') {
