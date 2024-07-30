@@ -1,6 +1,36 @@
-import { isPawnMove } from "./rules/pawnRules";
+import { bishopMove } from "./rules/bishopRules";
+import { kingMove } from "./rules/kingRules";
+import { pawnMove, test } from "./rules/pawnRules";
 
-export default class referee {
+export default class Referee {
+  // Fields
+  #refContext = {};
+
+  // Methods
+  updateRefereeContext = (
+    previousCoordinates,
+    currentCoordinates,
+    boardState,
+    pieceType
+  ) => {
+    //#SUGGESTION: Might be a better way to extract from hashmap?
+    this.#refContext = {
+      previousFile: this.extractFile(previousCoordinates),
+      previousRank: this.extractRank(previousCoordinates),
+      currentFile: this.extractFile(currentCoordinates),
+      currentRank: this.extractRank(currentCoordinates),
+      teamColour: this.extractTeamColour(pieceType),
+      boardState: boardState,
+    };
+
+    this.#refContext.previousFileNumber = this.fileToNumber(
+      this.#refContext.previousFile
+    );
+    this.#refContext.currentFileNumber = this.fileToNumber(
+      this.#refContext.currentFile
+    );
+  };
+
   /**
    * Helper function for determing if a piece is occupying a certain tile
    * @param {string} tileX
@@ -32,6 +62,10 @@ export default class referee {
 
   //#SUGGESTION: Change all if statements to else ifs
 
+  isPawnMove = () => pawnMove.apply(this, [this.#refContext]);
+  isKingMove = () => kingMove.apply(this, [this.#refContext]);
+  isBishopMove = () => bishopMove.apply(this, [this.#refContext]);
+
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
    * @param {string} previousCoordinates
@@ -40,99 +74,41 @@ export default class referee {
    * @param {object} boardState
    * @returns {boolean} true if the move is valid, false otherwise
    */
-  isValidMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
+  isMove(previousCoordinates, currentCoordinates, pieceType, boardState) {
     // #DEBUGGING
     // Logging the coordinates and piece types
     // console.log("Previous Location: ", { previousCoordinates });
     // console.log("Current Location: ", { currentCoordinates });
     // console.log("Piece Type: ", { pieceType });
 
-    //#SUGGESTION: Might be a better way to extract from hashmap?
-    const previousFile = this.extractFile(previousCoordinates);
-    const previousRank = this.extractRank(previousCoordinates);
-    const currentFile = this.extractFile(currentCoordinates);
-    const currentRank = this.extractRank(currentCoordinates);
-    const previousFileNumber = this.fileToNumber(previousFile);
-    const currentFileNumber = this.fileToNumber(currentFile);
-
-    // Team colour can only be black or white
-    const teamColour = this.extractTeamColour(pieceType);
- 
-
     /*  
     Three layers:
     1. Is a valid normal move
     2. Are we in check? If so does this move get us out of check
     3. Are we checkmated?
-
-
     */
+
+    let previousFile = this.extractFile(previousCoordinates);
+    let previousRank = this.extractRank(previousCoordinates);
+    let currentFile = this.extractFile(currentCoordinates);
+    let currentRank = this.extractRank(currentCoordinates);
+    let previousFileNumber = this.fileToNumber(this.#refContext.previousFile);
+    let currentFileNumber = this.fileToNumber(this.#refContext.currentFile);
+    let teamColour = this.extractTeamColour(pieceType);
+
     if (pieceType === "pawn_w" || pieceType === "pawn_b") {
-      isPawnMove()
+      // Checking pawn move
+      return this.isPawnMove();
     }
 
-
-    //#TODO: Pieces do not care about whether or not there is a piece in front of it
-    //Logic for King movement
     if (pieceType === "king_w" || pieceType === "king_b") {
-      // Diagonal Movement
-      if (
-        Math.abs(currentFileNumber - previousFileNumber) === 1 &&
-        Math.abs(currentRank - previousRank) === 1
-      ) {
-        return true;
-      } else if (
-        Math.abs(currentRank - previousRank) === 1 &&
-        previousFile === currentFile
-      ) {
-        // Vertical Movement
-        return true;
-      } else if (
-        Math.abs(currentFileNumber - previousFileNumber) === 1 &&
-        previousRank === currentRank
-      ) {
-        // Horizontal Movement
-        return true;
-      }
+      // Checking king move
+      return this.isKingMove();
     }
 
-    //Bishop Movement Logic (some reason it can move one square up)
+    //Bishop Movement Logic
     if (pieceType === "bishop_w" || pieceType === "bishop_b") {
-      //The difference in files MUST BE SAME as difference in ranks for a valid bishop move
-      if (
-        Math.abs(currentFileNumber - previousFileNumber) ===
-        Math.abs(currentRank - previousRank)
-      ) {
-        // Forces it to compare using either the currentCoordinates or previousCoordinates depending
-        // on whether it is moving up or down diagonally
-        const minFile = Math.min(currentFileNumber, previousFileNumber);
-        const minRank = Math.min(currentRank, previousRank);
-        for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
-          if (
-            this.tileIsOccupied(
-              this.numberToFile(minFile + i),
-              minRank + i,
-              boardState
-            )
-          ) {
-            // console.log(boardState);
-            return false;
-          }
-        }
-        // If it is occupied, then it must be either the same or opposing colour
-        if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-          return true;
-        } else if (
-          this.tileIsOccupiedByOpponent(
-            currentFile,
-            currentRank,
-            boardState,
-            teamColour
-          )
-        ) {
-          return true;
-        }
-      }
+      return this.isBishopMove();
     }
     //SUGGESTION: Can condense this code
     //Rook Movement Logic

@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { files, ranks } from "../components/constants";
-import Referee from "../logic/referee";
+import Referee from "../logic/Referee";
 
-const MovementContext = createContext(); // Creating the Context (Logic )
+const MovementContext = createContext(); // Creating the Movement Context
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
@@ -183,7 +183,7 @@ export const MovementProvider = ({ children, appRef }) => {
   function dropPiece() {
     if (activePiece) {
       // Checking if we're holding a piece
-
+      const pieceType = boardState[activePieceOrigin]; // Accessing the hashmap to get the piece type
       const { leftBound, topBound } = getChessboardElements(); // Extracting only needed variables from function
 
       let positionX = activePiece.style.left;
@@ -198,16 +198,24 @@ export const MovementProvider = ({ children, appRef }) => {
 
       if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
         // Get the piece type from the boardState state using the activePieceOrigin
-        const pieceType = boardState[activePieceOrigin]; // Accessing the hashmap to get the piece type
+
+        /* First of all, let's give the referee all the relevant info that it needs to do it's calculations */
+        referee.updateRefereeContext(
+          activePieceOrigin,
+          currentCoordinates,
+          boardState,
+          pieceType
+        );
+
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (
-          referee.isValidMove(
+          referee.isMove(
             activePieceOrigin,
             currentCoordinates,
             pieceType,
-            boardState
-          )
+            boardState,
+      )
         ) {
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.

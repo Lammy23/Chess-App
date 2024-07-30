@@ -1,4 +1,4 @@
-export function isPawnMove(
+export function pawnMove({
   previousRank,
   currentRank,
   previousFile,
@@ -6,13 +6,24 @@ export function isPawnMove(
   previousFileNumber,
   currentFileNumber,
   boardState,
-  teamColour
-) {
+  teamColour,
+}) {
+
+  // Logging parameters for debugging
+  // console.log("previousRank: " + previousRank)
+  // console.log("currentRank: " + currentRank)
+  // console.log("previousFile: " + previousFile)
+  // console.log("currentFile: " + currentFile)
+  // console.log("previousFileNumber: " + previousFileNumber)
+  // console.log("currentFileNumber: " + currentFileNumber)
+  // console.log("boardState: " + boardState)
+  // console.log("teamColour: " + teamColour)
+
   // Below 2 lines are for if its a white or black pawn
   const specialRank = teamColour === "WHITE" ? 2 : 7;
   const pawnDirection = teamColour === "WHITE" ? 1 : -1;
-  //Pawn Logic
-  //#SUGGESTION: tileIsOccupied and tileIsOccupiedByOpponent is possibly redundant?
+
+  //#SUGGESTION: this.tileIsOccupied and this.tileIsOccupiedByOpponent is possibly redundant?
   if (
     previousRank === specialRank &&
     currentRank - previousRank === 2 * pawnDirection &&
@@ -55,8 +66,18 @@ export function isPawnMove(
       return true;
     }
     // #TODO: Discuss how we will want to implement this
-    // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
+    // else if (validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
     //     return true;
     // }
   }
 }
+
+export function getPossiblePawnMoves() {
+  
+}
+
+// DEBUG
+// export function test(args) {
+//   console.log(typeof args)
+//   console.log(args)
+// }
