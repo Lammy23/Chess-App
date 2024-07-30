@@ -199,19 +199,24 @@ export const MovementProvider = ({ children, appRef }) => {
       if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
         // Get the piece type from the boardState state using the activePieceOrigin
 
+        let futureBoardState = { ...boardState };
+        futureBoardState[currentCoordinates] =
+          futureBoardState[activePieceOrigin];
+        futureBoardState[activePieceOrigin] = null;
+
         /* First of all, let's give the referee all the relevant info that it needs to do it's calculations */
-        referee.updateRefereeContext(
+        referee.updateRefereeContext({
           activePieceOrigin,
           currentCoordinates,
           boardState,
-          pieceType
-        );
+          futureBoardState,
+          pieceType,
+        });
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        if (
-          referee.isMove()
-        ) {
+        if (referee.isMove()) {
+          if (referee.isChecking(referee.getPossibleMoves())) console.log('CHECK!')
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */

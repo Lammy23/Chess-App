@@ -1,6 +1,7 @@
+import { allChessCoordinates } from "../components/constants";
 import { bishopMove } from "./rules/bishopRules";
 import { kingMove } from "./rules/kingRules";
-import { knightMove } from "./rules/knightRules";
+import { PossibleKnightMoves, knightMove } from "./rules/knightRules";
 import { pawnMove } from "./rules/pawnRules";
 import { queenMove } from "./rules/queenRules";
 import { rookMove } from "./rules/rookRules";
@@ -9,22 +10,33 @@ export default class Referee {
   // Fields
   #refContext = {};
 
+  #getEnemyKingCoordinates() {
+    const enemyColor = this.#refContext.teamColour === "WHITE" ? "b" : "w";
+    for (let coordinate of allChessCoordinates) {
+      if (this.#refContext.boardState[coordinate] === `king_${enemyColor}`) {
+        return coordinate;
+      }
+    }
+  }
+
   // Methods
-  updateRefereeContext = (
-    previousCoordinates,
+  updateRefereeContext = ({
+    activePieceOrigin,
     currentCoordinates,
     boardState,
-    pieceType
-  ) => {
+    futureBoardState,
+    pieceType,
+  }) => {
     //#SUGGESTION: Might be a better way to extract from hashmap?
     this.#refContext = {
-      previousFile: this.extractFile(previousCoordinates),
-      previousRank: this.extractRank(previousCoordinates),
+      previousFile: this.extractFile(activePieceOrigin),
+      previousRank: this.extractRank(activePieceOrigin),
       currentFile: this.extractFile(currentCoordinates),
       currentRank: this.extractRank(currentCoordinates),
       teamColour: this.extractTeamColour(pieceType),
       pieceType: pieceType,
       boardState: boardState,
+      futureBoardState: futureBoardState,
     };
 
     this.#refContext.previousFileNumber = this.fileToNumber(
@@ -46,6 +58,17 @@ export default class Referee {
     const tileKey = `${tileX}${tileY}`;
     //If the tile is not empty, then it is occupied
     return boardState[tileKey] !== undefined && boardState[tileKey] !== null;
+  }
+
+  tileIsOccupiedByOwn(coordinate, boardState) {
+    const piece = boardState[coordinate];
+    if (
+      piece &&
+      this.extractTeamColour(piece) === this.#refContext.teamColour
+    ) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -70,6 +93,9 @@ export default class Referee {
   isRookMove = () => rookMove.apply(this, [this.#refContext]);
   isQueenMove = () => queenMove.apply(this, [this.#refContext]);
   isKnightMove = () => knightMove.apply(this, [this.#refContext]);
+
+  getPossibleKnightMove = () =>
+    PossibleKnightMoves.apply(this, [this.#refContext]);
 
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
@@ -100,7 +126,7 @@ export default class Referee {
     2. Are we in check? If so does this move get us out of check
     3. Are we checkmated?
     */
-   
+
     if (pieceType === "pawn_w" || pieceType === "pawn_b") {
       // Checking pawn move
       console.log("Hello");
@@ -131,6 +157,32 @@ export default class Referee {
       return this.isKnightMove();
     }
     return false;
+  }
+
+  // #TODO: moves could be private field
+  getPossibleMoves() {
+    const moves = [];
+    moves.push(...this.getPossibleKnightMove());
+    moves.push();
+
+    console.log(moves);
+    return moves;
+  }
+
+  isChecking(moves) {
+    // Checking if king is part of possible moves.
+    // first find king
+    const enemyKingCoordinates = this.#getEnemyKingCoordinates();
+    for (let coordinate of moves) {
+      if (coordinate === enemyKingCoordinates) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isCheckmate() {
+    // earghhh
   }
 
   /**

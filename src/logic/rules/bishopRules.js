@@ -27,7 +27,7 @@ export function bishopMove({
           boardState
         )
       ) {
-        console.log(minFile + i, minRank + i)
+        console.log(minFile + i, minRank + i);
         return false;
       }
     }
@@ -45,4 +45,14 @@ export function bishopMove({
       return true;
     }
   }
+}
+
+export function possibleBishopMoves({
+  currentRank,
+  currentFile,
+  futureBoardState,
+}) {
+
+  
+
 }
