@@ -76,6 +76,5 @@ export function PossibleKnightMoves({ futureBoardState, teamColour }) {
     f(coordinate);
   });
 
-  console.log(moves);
   return moves;
 }

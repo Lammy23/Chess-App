@@ -129,7 +129,6 @@ export default class Referee {
 
     if (pieceType === "pawn_w" || pieceType === "pawn_b") {
       // Checking pawn move
-      console.log("Hello");
       return this.isPawnMove();
     }
 
@@ -163,9 +162,7 @@ export default class Referee {
   getPossibleMoves() {
     const moves = [];
     moves.push(...this.getPossibleKnightMove());
-    moves.push();
 
-    console.log(moves);
     return moves;
   }
 
