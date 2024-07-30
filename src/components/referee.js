@@ -55,7 +55,7 @@ export default class referee {
                     console.log("HOW");
                     return true;
                 }
-                // #TODO: Discuss how we will want to implement this
+                // #TODO: Discuss how we will want to implement this DONE (implementation with stack)
                 // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
                 //     return true;
                 // }
@@ -64,17 +64,15 @@ export default class referee {
 
         //Logic for King movement
         if(pieceType === 'king_w' || pieceType === 'king_b') {
-            // Diagonal Movement
             if(Math.abs(currentFileNumber - previousFileNumber) === 1 && Math.abs(currentRank - previousRank) === 1) {
-                
+                // Diagonal Movement
             } else if (Math.abs(currentRank - previousRank) === 1 && previousFile === currentFile) { 
- 
+                // Vertical Movement
             } else if (Math.abs(currentFileNumber - previousFileNumber) === 1 && previousRank === currentRank) {
-
+                // Horizontal Movement
             } else {
                 return false;
             }
-            // Horizontal Movement
             // If it is occupied, then it must be either the same or opposing colour
             if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
                 return true;
