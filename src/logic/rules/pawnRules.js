@@ -23,7 +23,7 @@ export function pawnMove({
   const specialRank = teamColour === "WHITE" ? 2 : 7;
   const pawnDirection = teamColour === "WHITE" ? 1 : -1;
 
-  //#SUGGESTION: this.tileIsOccupied and this.tileIsOccupiedByOpponent is possibly redundant?
+  // #SUGGESTION: this.tileIsOccupied and this.tileIsOccupiedByOpponent is possibly redundant?
   if (
     previousRank === specialRank &&
     currentRank - previousRank === 2 * pawnDirection &&

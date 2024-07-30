@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { files, ranks } from "../components/constants";
-import Referee from "../logic/Referee";
+import Referee from "../logic/Referee.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
 
@@ -210,12 +210,7 @@ export const MovementProvider = ({ children, appRef }) => {
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (
-          referee.isMove(
-            activePieceOrigin,
-            currentCoordinates,
-            pieceType,
-            boardState,
-      )
+          referee.isMove()
         ) {
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.

@@ -1,7 +1,6 @@
 export function bishopMove({
   previousRank,
   currentRank,
-  previousFile,
   currentFile,
   previousFileNumber,
   currentFileNumber,
