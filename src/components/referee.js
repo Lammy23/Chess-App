@@ -1,3 +1,5 @@
+import { FOCUSABLE_SELECTOR } from "@testing-library/user-event/dist/utils";
+
 export default class referee {
     // Helper function for determing if a piece is occupying a certain tile
     tileIsOccupied(tileX, tileY, boardState) {
@@ -77,30 +79,6 @@ export default class referee {
             }
         }
 
-        // //Bishop Movement Logic 
-        // if(pieceType === 'bishop_w' || pieceType === 'bishop_b') {
-        //     //The difference in files MUST BE SAME as difference in ranks for a valid bishop move
-        //     if(Math.abs(currentFileNumber - previousFileNumber) === Math.abs(currentRank - previousRank)) {
-        //         // Forces it to compare using either the currentCoordinates or previousCoordinates depending
-        //         // on whether it is moving up or down diagonally
-        //         const minFile = Math.min(currentFileNumber, previousFileNumber);
-        //         const minRank = Math.min(currentRank, previousRank);
-        //         for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
-        //             console.log(this.numberToFile(minFile + i), minRank + i);
-        //             if(this.tileIsOccupied(this.numberToFile(minFile + i), minRank + i, boardState)) {
-        //                 console.log(boardState);
-        //                 return false;
-        //             }
-        //         }
-        //         // If it is occupied, then it must be either the same or opposing colour
-        //         if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-        //             return true;
-        //         } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-        //             return true;
-        //         }
-        //     }
-        // }
-
         if(pieceType === 'bishop_w' || pieceType === 'bishop_b') {
             //The difference in files MUST BE SAME as difference in ranks for a valid bishop move
             if(Math.abs(currentFileNumber - previousFileNumber) === Math.abs(currentRank - previousRank)) {
@@ -127,9 +105,11 @@ export default class referee {
                 } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
                     return true;
                 }
+            } else {
+                return false;
             }
         }
-        //SUGGESTION: Can condense this code
+        //SUGGESTION: Can condense this code maybe?
         //Rook Movement Logic
         if(pieceType === 'rook_w' || pieceType === 'rook_b') {
             // Must stay in the same file or same rank for movement
@@ -140,12 +120,6 @@ export default class referee {
                         return false;
                     }
                 }
-                // If it is occupied, then it must be either the same or opposing colour
-                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-                    return true;
-                }
             } else if (currentRank === previousRank) {
                 // Horizontal Movement
                 for (let i = 1; i < Math.abs(currentFileNumber - previousFileNumber); i++) {
@@ -153,18 +127,22 @@ export default class referee {
                         return false;
                     }
                 }
-                // If it is occupied, then it must be either the same or opposing colour
-                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-                    return true;
-                }
+            } else {
+                // if it doesn't enter any of the if else blocks, 
+                // it means the move it made does not follow the piece's logic type
+                return false;
+            }
+            // If it is occupied, then it must be either the same or opposing colour
+            if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                return true;
+            } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                return true;
             }
         }
 
         //Queen Movement Logic 
         if(pieceType === 'queen_w' || pieceType === 'queen_b') {
-            // Logic is the same as a bishop and rook combined
+            // Logic is the combination of a Rook and a Bishop 
             if(currentFile === previousFile) {
                 // Vertical Movement
                 for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
@@ -172,12 +150,6 @@ export default class referee {
                         return false;
                     }
                 }
-                // If it is occupied, then it must be either the same or opposing colour
-                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-                    return true;
-                }
             } else if (currentRank === previousRank) {
                 // Horizontal Movement
                 for (let i = 1; i < Math.abs(currentFileNumber - previousFileNumber); i++) {
@@ -185,29 +157,30 @@ export default class referee {
                         return false;
                     }
                 }
-                // If it is occupied, then it must be either the same or opposing colour
-                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-                    return true;
-                }
             } else if(Math.abs(currentFileNumber - previousFileNumber) === Math.abs(currentRank - previousRank)) {
-                // Forces it to compare using either the currentCoordinates or previousCoordinates depending
-                // on whether it is moving up or down diagonally
-                const minFile = Math.min(currentFileNumber, previousFileNumber);
-                const minRank = Math.min(currentRank, previousRank);
+                // Diagonal Movement
+                let verticalDirection = (previousRank < currentRank) ? 1 : -1;
+                let counter = 0 + verticalDirection;
                 for (let i = 1; i < Math.abs(currentRank - previousRank); i++) {
-                    if(this.tileIsOccupied(this.numberToFile(minFile + i), minRank + i, boardState)) {
-                        // console.log(boardState);
-                        return false;
+                    if(previousFileNumber > currentFileNumber) { //Left
+                        if(this.tileIsOccupied(this.numberToFile(previousFileNumber - i), previousRank + counter, boardState)) {
+                            console.log(this.numberToFile(previousFileNumber - i), previousRank + counter)
+                            return false;
+                        }
+                    } else { //Right
+                        if(this.tileIsOccupied(this.numberToFile(previousFileNumber + i), previousRank + counter, boardState)) {
+                            return false;
+                        }
                     }
+                    counter += verticalDirection; 
                 }
-                // If it is occupied, then it must be either the same or opposing colour
-                if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
-                    return true;
-                } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
-                    return true;
-                }
+            } else {
+                return false;
+            }
+            if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
+                return true;
+            } else if (this.tileIsOccupiedByOpponent(currentFile, currentRank, boardState, teamColour)) {
+                return true;
             }
         }
 
