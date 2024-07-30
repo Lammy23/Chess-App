@@ -1,5 +1,3 @@
-import { FOCUSABLE_SELECTOR } from "@testing-library/user-event/dist/utils";
-
 export default class referee {
     // Helper function for determing if a piece is occupying a certain tile
     tileIsOccupied(tileX, tileY, boardState) {
