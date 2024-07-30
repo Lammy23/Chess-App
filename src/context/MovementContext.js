@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { files, ranks } from "../components/constants";
-import Referee from "../components/referee";
+import Referee from "../logic/Referee.js";
 
-const MovementContext = createContext(); // Creating the Context (Logic )
+const MovementContext = createContext(); // Creating the Movement Context
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
@@ -23,7 +23,7 @@ export const useMovementContext = () => useContext(MovementContext);
 // }
 
 export const MovementProvider = ({ children, appRef }) => {
-  const [piecePosition, setPiecePosition] =
+  const [boardState, setBoardState] =
     useState(
       null
     ); /* A Hashmap representing starting positions. New positions can be added dynamically */
@@ -31,12 +31,12 @@ export const MovementProvider = ({ children, appRef }) => {
     useState(null); /* The div element that is the active piece */
   const [activePieceOrigin, setActivePieceOrigin] =
     useState(""); /* The position string that the active piece came from */
-    const referee = new Referee(); //Instance of referee to check the movement of pieces
+  const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   /**
    * This function returns various elements and properties of the chessboard div.
    * #TODO: The constants created here don't ever change so I should probably find a way to calculate them and store them somewhere. maybe useEffect would be helpful?
-   * @returns Object containing the chessboard div, chess tile div, tile width, tile height, left bound, top bound, right bound and bottom bound
+   * @returns {object} Object containing the chessboard div, chess tile div, tile width, tile height, left bound, top bound, right bound and bottom bound
    */
   function getChessboardElements() {
     const chessboardDiv = appRef.current.children[0].children[0]; // Extracting the chessboard div
@@ -49,7 +49,6 @@ export const MovementProvider = ({ children, appRef }) => {
     const topBound = chessboardDiv.offsetTop; // Calculating the coordinates of the top edge of the board.
     const rightBound = leftBound + chessboardDiv.clientWidth; // "" "" of the right edge.
     const bottomBound = topBound + chessboardDiv.clientHeight; // "" "" of the bottom edge.
-    
 
     return {
       chessboardDiv,
@@ -67,7 +66,7 @@ export const MovementProvider = ({ children, appRef }) => {
    * Function to convert the position of the piece to a file and rank
    * @param {String} positionX
    * @param {String} positionY
-   * @returns String of file and rank if the position is valid, else null
+   * @returns {string | null} String of file and rank if the position is valid, else null
    */
   function coordinatesToFileAndRank(positionX, positionY) {
     const { tileWidth, tileHeight, leftBound, topBound } =
@@ -150,7 +149,6 @@ export const MovementProvider = ({ children, appRef }) => {
     // }
 
     if (activePiece && activePiece.className === "piece-div") {
-      console.log("Moving actual piece");
       // #TODO: This line of code below makes the game slow I think. Because this function is running multiple times a second.
 
       // If no mouse button is clicked, drop the piece. This fixes the spam click bug.
@@ -185,7 +183,7 @@ export const MovementProvider = ({ children, appRef }) => {
   function dropPiece() {
     if (activePiece) {
       // Checking if we're holding a piece
-
+      const pieceType = boardState[activePieceOrigin]; // Accessing the hashmap to get the piece type
       const { leftBound, topBound } = getChessboardElements(); // Extracting only needed variables from function
 
       let positionX = activePiece.style.left;
@@ -199,12 +197,27 @@ export const MovementProvider = ({ children, appRef }) => {
       );
 
       if (currentCoordinates && currentCoordinates !== activePieceOrigin) {
-        // Get the piece type from the piecePosition state using the activePieceOrigin
-        const pieceType = piecePosition[activePieceOrigin]; //Accessing the hashmap to get the piece type
+        // Get the piece type from the boardState state using the activePieceOrigin
+
+        let futureBoardState = { ...boardState };
+        futureBoardState[currentCoordinates] =
+          futureBoardState[activePieceOrigin];
+        futureBoardState[activePieceOrigin] = null;
+
+        /* First of all, let's give the referee all the relevant info that it needs to do it's calculations */
+        referee.updateRefereeContext({
+          activePieceOrigin,
+          currentCoordinates,
+          boardState,
+          futureBoardState,
+          pieceType,
+        });
+
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        if (referee.isValidMove(activePieceOrigin, currentCoordinates, pieceType, piecePosition)) {
-          setPiecePosition((prev) => {
+        if (referee.isMove()) {
+          if (referee.isChecking(referee.getPossibleMoves())) console.log('CHECK!')
+          setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */
             const oldCoordinates = prev[activePieceOrigin];
@@ -227,7 +240,7 @@ export const MovementProvider = ({ children, appRef }) => {
 
   useEffect(() => {
     /* Upon loading the app, this should be the default position of the chess board */
-    setPiecePosition({
+    setBoardState({
       // Hashmap representing starting positions, will update every position for each piece when moved
       a1: "rook_w",
       b1: "knight_w",
@@ -274,7 +287,7 @@ export const MovementProvider = ({ children, appRef }) => {
         grabPiece,
         movePiece,
         dropPiece,
-        piecePosition,
+        boardState,
       }}
     >
       {children}
