@@ -15,10 +15,10 @@ function ChessBoard() {
     .reverse()
     .forEach((rank) => files.forEach((file) => board.push(file + rank)));
 
-  const { movePiece, dropPiece, piecePosition } =
+  const { movePiece, dropPiece, boardState } =
     useMovementContext(); // Using variables and functions from the MovementContext (Logic)
 
-  if (piecePosition)
+  if (boardState)
     // Checking if the starting position of the pieces (hashmap) has been assigned yet by MovementContext
     return (
       <div
@@ -35,7 +35,7 @@ function ChessBoard() {
       >
         <div id="chessboard">
           {board.map((position) => {
-            let piece = piecePosition[position]; // Using the starting position hashmap. Piece is a string like 'pawn_b' 'king_w'
+            let piece = boardState[position]; // Using the starting position hashmap. Piece is a string like 'pawn_b' 'king_w'
             return (
               <ChessTile key={position} position={position} piece={piece} />
             ); // Added a unique key prop to prevent a warning
