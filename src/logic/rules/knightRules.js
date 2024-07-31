@@ -1,5 +1,5 @@
 import { allChessCoordinates } from "../../components/constants";
-import { ChessCoordinates } from "../Coordinates";
+import { ChessCoordinate } from "../Coordinates";
 
 // #TODO: can prolly use private variable refContext instead of
 export function knightMove({
@@ -38,7 +38,7 @@ export function knightMove({
   }
 }
 
-export function PossibleKnightMoves({ futureBoardState, teamColour }) {
+export function possibleKnightMoves({ futureBoardState, teamColour }) {
   // Get current coordinates
   // Calculate all possible cordinates according to knight rules
   // add coordinates to list and return
@@ -48,15 +48,11 @@ export function PossibleKnightMoves({ futureBoardState, teamColour }) {
 
   for (let coordinate of allChessCoordinates) {
     if (futureBoardState[coordinate] === `knight_${color}`) {
-      knightCoordinates.push(coordinate);
+      knightCoordinates.push(new ChessCoordinate(coordinate));
     }
   }
 
   const moves = [];
-
-  knightCoordinates = knightCoordinates.map((coordinate) => {
-    return new ChessCoordinates(coordinate);
-  });
 
   // eaargghh
   let x = [2, 2, -2, -2];

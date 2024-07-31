@@ -1,10 +1,12 @@
 import { allChessCoordinates } from "../components/constants";
-import { bishopMove } from "./rules/bishopRules";
+import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
 import { kingMove } from "./rules/kingRules";
-import { PossibleKnightMoves, knightMove } from "./rules/knightRules";
+import { possibleKnightMoves, knightMove } from "./rules/knightRules";
 import { pawnMove } from "./rules/pawnRules";
 import { queenMove } from "./rules/queenRules";
 import { rookMove } from "./rules/rookRules";
+
+import { ChessCoordinate } from "./Coordinates";
 
 export default class Referee {
   // Fields
@@ -94,8 +96,85 @@ export default class Referee {
   isQueenMove = () => queenMove.apply(this, [this.#refContext]);
   isKnightMove = () => knightMove.apply(this, [this.#refContext]);
 
+  /**
+   *
+   * @param {ChessCoordinate} coordinate
+   * @returns
+   */
+  getPossibleDiagonalMoves(coordinate) {
+    // Assuming coordinate is of type ChessCoordinate
+
+    let boardState = this.#refContext.boardState;
+    let teamColour = this.#refContext.teamColour;
+
+    let moves = [];
+    let origin = coordinate.coordinate;
+
+    let x = [-1, 1, -1, 1];
+    let y = [1, 1, -1, -1];
+
+    for (let i = 0; i < x.length; i++) {
+      do {
+        moves.push(coordinate.coordinate);
+        coordinate.plus({ fileStep: x[i], rankStep: y[i] });
+      } while (!(coordinate.isOccupied({ boardState }) || coordinate.isEdge()));
+
+      if (coordinate.isOccupiedByOpponent({ boardState, teamColour })) {
+        moves.push(coordinate.coordinate);
+      }
+
+      coordinate.setCoordinate(origin);
+    }
+
+    return moves;
+  }
+
+  getPossibleCrossMoves(coordinate) {
+    // Assuming coordinate is of type ChessCoordinate
+
+    let boardState = this.#refContext.boardState;
+    let teamColour = this.#refContext.teamColour;
+
+    let moves = [];
+    let origin = coordinate.coordinate;
+
+    let x = [1, -1];
+
+    for (let i = 0; i < x.length; i++) {
+      do {
+        // horizontal movement
+        moves.push(coordinate.coordinate);
+        coordinate.plus({ fileStep: x[i], rankStep: 0 });
+      } while (
+        !(coordinate.isOccupied({ boardState }) || coordinate.isFileEdge())
+      );
+      if (coordinate.isOccupiedByOpponent({ boardState, teamColour })) {
+        moves.push(coordinate.coordinate);
+      }
+
+      coordinate.setCoordinate(origin);
+
+      do {
+        // vertical movement
+        moves.push(coordinate.coordinate);
+        coordinate.plus({ fileStep: 0, rankStep: x[i] });
+      } while (
+        !(coordinate.isOccupied({ boardState }) || coordinate.isRankEdge())
+      );
+      if (coordinate.isOccupiedByOpponent({ boardState, teamColour })) {
+        moves.push(coordinate.coordinate);
+      }
+
+      coordinate.setCoordinate(origin);
+    }
+
+    return moves;
+  }
+
   getPossibleKnightMove = () =>
-    PossibleKnightMoves.apply(this, [this.#refContext]);
+    possibleKnightMoves.apply(this, [this.#refContext]);
+  getPossibleBishopMoves = () =>
+    possibleBishopMoves.apply(this, [this.#refContext]);
 
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
@@ -162,6 +241,7 @@ export default class Referee {
   getPossibleMoves() {
     const moves = [];
     moves.push(...this.getPossibleKnightMove());
+    moves.push(...this.getPossibleBishopMoves());
 
     return moves;
   }
