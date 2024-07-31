@@ -50,15 +50,6 @@ export class ChessCoordinate {
     }
   }
 
-  plusVal({ fileStep, rankStep }) {
-    let newRank = this.rank + this.#rankConvert(rankStep);
-    let newFile = this.file + this.#fileConvert(fileStep);
-
-    if (this.#isValidCoordinate(newFile, newRank))
-      return `${numToFile[newFile]}${newRank}`;
-    return null;
-  }
-
   isOccupied({ boardState }) {
     // eargghh
     return !!boardState[this.coordinate];
