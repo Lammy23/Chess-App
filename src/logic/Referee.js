@@ -3,7 +3,7 @@ import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
 import { kingMove } from "./rules/kingRules";
 import { possibleKnightMoves, knightMove } from "./rules/knightRules";
 import { pawnMove } from "./rules/pawnRules";
-import { queenMove } from "./rules/queenRules";
+import { possibleQueenMoves, queenMove } from "./rules/queenRules";
 import { possibleRookMoves, rookMove } from "./rules/rookRules";
 
 import { ChessCoordinate } from "./Coordinates";
@@ -177,6 +177,8 @@ export default class Referee {
     possibleBishopMoves.apply(this, [this.#refContext]);
   getPossibleRookMoves = () =>
     possibleRookMoves.apply(this, [this.#refContext]);
+  getPossibleQueenMoves = () =>
+    possibleQueenMoves.apply(this, [this.#refContext]);
 
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
@@ -245,6 +247,7 @@ export default class Referee {
     moves.push(...this.getPossibleKnightMove());
     moves.push(...this.getPossibleBishopMoves());
     moves.push(...this.getPossibleRookMoves());
+    moves.push(...this.getPossibleQueenMoves());
 
     return moves;
   }

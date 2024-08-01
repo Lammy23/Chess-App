@@ -24,3 +24,7 @@ if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
     return true;
 } 
 }
+
+export function possibleKingMoves() {
+    
+}

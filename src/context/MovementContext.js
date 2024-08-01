@@ -33,6 +33,11 @@ export const MovementProvider = ({ children, appRef }) => {
     useState(""); /* The position string that the active piece came from */
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
+  const playSound = (sound) => {
+    const audio = new Audio(`assets/sounds/${sound}.m4a`);
+    audio.play();
+  };
+
   /**
    * This function returns various elements and properties of the chessboard div.
    * #TODO: The constants created here don't ever change so I should probably find a way to calculate them and store them somewhere. maybe useEffect would be helpful?
@@ -216,7 +221,11 @@ export const MovementProvider = ({ children, appRef }) => {
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (referee.isMove()) {
-          if (referee.isChecking(referee.getPossibleMoves())) console.log('CHECK!')
+          playSound("move");
+          if (referee.isChecking(referee.getPossibleMoves())) {
+            console.log("CHECK!");
+            playSound("check");
+          }
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */
