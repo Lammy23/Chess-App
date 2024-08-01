@@ -30,7 +30,7 @@ export default class Referee {
     pieceType,
   }) => {
     //#SUGGESTION: Might be a better way to extract from hashmap?
-    this.#refContext = {
+    this.#refContext = { // Private variables
       previousFile: this.extractFile(activePieceOrigin),
       previousRank: this.extractRank(activePieceOrigin),
       currentFile: this.extractFile(currentCoordinates),
@@ -209,6 +209,8 @@ export default class Referee {
     2. Are we in check? If so does this move get us out of check
     3. Are we checkmated?
     */
+    console.log(this.#refContext.boardState);
+    console.log(this.#refContext.futureBoardState);
 
     if (pieceType === "pawn_w" || pieceType === "pawn_b") {
       // Checking pawn move

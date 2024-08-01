@@ -7,6 +7,7 @@ export function pawnMove({
   currentFileNumber,
   boardState,
   teamColour,
+  moveHistory
 }) {
   // Below 2 lines are for if its a white or black pawn
   const specialRank = teamColour === "WHITE" ? 2 : 7;
@@ -51,13 +52,10 @@ export function pawnMove({
         teamColour
       )
     ) {
-      console.log("HOW");
+      return true;
+    } else if (this.validEnPassant(previousFile, currentFile, previousRank, currentRank, boardState, teamColour, moveHistory)) {
       return true;
     }
-    // #TODO: Discuss how we will want to implement this DONE (implementation with stack)
-    // else if (this.validEnPassant(currentFile, currentRank - pawnDirection, boardState, teamColour)) {
-    //     return true;
-    // }
   }
 }
 
@@ -68,3 +66,21 @@ export function getPossiblePawnMoves() {}
 //   console.log(typeof args)
 //   console.log(args)
 // }
+
+export function validEnPassant(previousFile, currentFile, previousRank, currentRank, boardState, teamColour, moveHistory) {
+  const pawnDirection = (teamColour === "WHITE") ? 1 : -1;
+  const lastMove = moveHistory[moveHistory.length - 1];
+  if (!lastMove) return false;
+
+  const lastMovePiece = boardState[lastMove.to];
+  if (
+    lastMovePiece === `pawn_${(teamColour === "WHITE") ? "b" : "w"}` &&
+    lastMove.from[1] - lastMove.to[1] === 2 * pawnDirection &&
+    lastMove.to[0] === currentFile &&
+    previousRank === lastMove.to[1]
+  ) {
+    return true;
+  }
+
+  return false;
+}
