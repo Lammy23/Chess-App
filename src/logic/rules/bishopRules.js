@@ -1,3 +1,6 @@
+import { allChessCoordinates } from "../../components/constants";
+import { ChessCoordinate } from "../Coordinates";
+
 export function bishopMove({
   previousRank,
   currentRank,
@@ -64,8 +67,24 @@ export function bishopMove({
   }
 }
 
-export function possibleBishopMoves({
-  currentRank,
-  currentFile,
-  futureBoardState,
-}) {}
+export function possibleBishopMoves({ futureBoardState, teamColour }) {
+  var color = teamColour === "WHITE" ? "w" : "b";
+
+  // 1. Get bishop coordinates
+  let bishopCoordinates = [];
+
+  for (let coordinate of allChessCoordinates) {
+    if (futureBoardState[coordinate] === `bishop_${color}`) {
+      bishopCoordinates.push(new ChessCoordinate(coordinate));
+    }
+  }
+
+  // 2. Calculate moves. Bishop moves in four directions
+  let moves = [];
+
+  bishopCoordinates.forEach((cdn) => {
+    moves.push(...this.getPossibleDiagonalMoves(cdn));
+  });
+
+  return moves;
+}
