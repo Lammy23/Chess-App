@@ -211,7 +211,17 @@ export default class Referee {
     */
     console.log(this.#refContext.boardState);
     console.log(this.#refContext.futureBoardState);
-
+    const isValid = pawnMove({
+      previousRank: this.previousRank,
+      currentRank: this.currentRank,
+      previousFile: this.previousFile,
+      currentFile: this.currentFile,
+      previousFileNumber: this.previousFileNumber,
+      currentFileNumber: this.currentFileNumber,
+      boardState: this.boardState,
+      teamColour: this.teamColour,
+      moveHistory: this.moveHistory, // Pass move history to pawnMove function
+    });
     if (pieceType === "pawn_w" || pieceType === "pawn_b") {
       // Checking pawn move
       return this.isPawnMove();
@@ -240,7 +250,8 @@ export default class Referee {
     if (pieceType === "knight_w" || pieceType === "knight_b") {
       return this.isKnightMove();
     }
-    return false;
+    
+    return isValid;
   }
 
   // #TODO: moves could be private field

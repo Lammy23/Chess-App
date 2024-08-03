@@ -31,6 +31,7 @@ export const MovementProvider = ({ children, appRef }) => {
     useState(null); /* The div element that is the active piece */
   const [activePieceOrigin, setActivePieceOrigin] =
     useState(""); /* The position string that the active piece came from */
+  const [moveHistory, setMoveHistory] = useState([]);
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   const playSound = (sound) => {
@@ -221,9 +222,8 @@ export const MovementProvider = ({ children, appRef }) => {
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (referee.isMove()) {
-          playSound("mariojump");
+          playSound("pipes");
           if (referee.isChecking(referee.getPossibleMoves())) {
-            console.log("CHECK!");
             playSound("mewing");
           }
           setBoardState((prev) => {
@@ -237,6 +237,13 @@ export const MovementProvider = ({ children, appRef }) => {
             updatedPosition[activePieceOrigin] = null;
             return updatedPosition;
           });
+
+          setMoveHistory((prev) => [
+            ...prev,
+            {from: activePieceOrigin, to: currentCoordinates, piece: pieceType },
+          ]);
+        } else {
+          playSound("buzzer"); //Sound queue for illegal moves
         }
       }
       // Will reset piece if the position isn't updated
@@ -297,6 +304,7 @@ export const MovementProvider = ({ children, appRef }) => {
         movePiece,
         dropPiece,
         boardState,
+        moveHistory
       }}
     >
       {children}
