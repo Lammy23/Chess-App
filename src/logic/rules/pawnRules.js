@@ -101,14 +101,15 @@ export function validEnPassant({
 
   const lastMoveFrom = new ChessCoordinate(lastMove.from);
   const lastMoveTo = new ChessCoordinate(lastMove.to);
-
+  console.log("lastMovePiece:", lastMovePiece);
+  console.log("Enemy Colour:", enemyColor);
   if (
-    lastMoveTo.plus({ fileStep: 0, rankStep: 1 }).coordinate ===
+    lastMoveTo.plus({ fileStep: 0, rankStep: 1 * pawnDirection }).coordinate ===
     `${currentFile}${currentRank}`
   ) {
-    lastMoveTo.plus({ fileStep: 0, rankStep: -1 })
+    lastMoveTo.plus({ fileStep: 0, rankStep: -1 * pawnDirection})
     if (
-      lastMoveFrom.plus({ rankStep: -2, fileStep: 0 }).coordinate ===
+      lastMoveFrom.plus({ rankStep: -2 * pawnDirection, fileStep: 0 }).coordinate ===
       lastMoveTo.coordinate
     ) {
       return true
