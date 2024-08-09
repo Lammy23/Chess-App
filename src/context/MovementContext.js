@@ -225,6 +225,7 @@ export const MovementProvider = ({ children, appRef }) => {
         if (referee.isMove()) {
           playSound("pipes");
           if (referee.isChecking(referee.getPossibleMoves())) {
+            console.log('check')
             playSound("mewing");
           }
           setBoardState((prev) => {

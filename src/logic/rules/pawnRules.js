@@ -64,7 +64,22 @@ export function pawnMove({
   }
 }
 
-export function getPossiblePawnMoves() {}
+export function getPossiblePawnMoves({futureBoardState, teamColour}) {
+  let boardState = futureBoardState;
+  var color = teamColour === "WHITE" ? "w" : "b";
+
+// 1. Get Pawn coordinates
+var pawnCoordinates = []
+
+// for (let coordinate of allChessCoordinates) {
+//   if (boardState[coordinate] === `knight_${color}`) {
+//     knightCoordinates.push(new ChessCoordinate(coordinate));
+//   }
+// }
+
+// 2. Calculate Pawn moves
+
+}
 
 // DEBUG
 // export function test(args) {
