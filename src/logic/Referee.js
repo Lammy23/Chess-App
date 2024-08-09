@@ -2,7 +2,7 @@ import { allChessCoordinates } from "../components/constants";
 import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
 import { kingMove } from "./rules/kingRules";
 import { possibleKnightMoves, knightMove } from "./rules/knightRules";
-import { pawnMove } from "./rules/pawnRules";
+import { pawnMove, validEnPassant } from "./rules/pawnRules";
 import { possibleQueenMoves, queenMove } from "./rules/queenRules";
 import { possibleRookMoves, rookMove } from "./rules/rookRules";
 
@@ -28,14 +28,17 @@ export default class Referee {
     boardState,
     futureBoardState,
     pieceType,
+    moveHistory,
   }) => {
     //#SUGGESTION: Might be a better way to extract from hashmap?
-    this.#refContext = { // Private variables
+    this.#refContext = {
+      // Private variables
       previousFile: this.extractFile(activePieceOrigin),
       previousRank: this.extractRank(activePieceOrigin),
       currentFile: this.extractFile(currentCoordinates),
       currentRank: this.extractRank(currentCoordinates),
       teamColour: this.extractTeamColour(pieceType),
+      moveHistory: moveHistory,
       pieceType: pieceType,
       boardState: boardState,
       futureBoardState: futureBoardState,
@@ -180,6 +183,8 @@ export default class Referee {
   getPossibleQueenMoves = () =>
     possibleQueenMoves.apply(this, [this.#refContext]);
 
+  isValidEnPassant = () => validEnPassant.apply(this, [this.#refContext]);
+
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
    * @param {string} previousCoordinates
@@ -209,8 +214,7 @@ export default class Referee {
     2. Are we in check? If so does this move get us out of check
     3. Are we checkmated?
     */
-    console.log(this.#refContext.boardState);
-    console.log(this.#refContext.futureBoardState);
+
     const isValid = pawnMove({
       previousRank: this.previousRank,
       currentRank: this.currentRank,
@@ -250,7 +254,7 @@ export default class Referee {
     if (pieceType === "knight_w" || pieceType === "knight_b") {
       return this.isKnightMove();
     }
-    
+
     return isValid;
   }
 
@@ -290,14 +294,14 @@ export default class Referee {
    * @returns {boolean} true if the move is valid, false otherwise
    */
   //Determining if the move from a pawn can use En Passant
-  validEnPassant(tileX, tileY, boardState, TeamType) {
-    const tileKey = `${tileX}${tileY}`;
-    const attackableOpposingPawn = TeamType === "WHITE" ? "pawn_b" : "pawn_w";
-    if (boardState[tileKey] === attackableOpposingPawn) {
-      return true;
-    }
-    return false;
-  }
+  // validEnPassant(tileX, tileY, boardState, TeamType) {
+  //   const tileKey = `${tileX}${tileY}`;
+  //   const attackableOpposingPawn = TeamType === "WHITE" ? "pawn_b" : "pawn_w";
+  //   if (boardState[tileKey] === attackableOpposingPawn) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   //Extracting the Rank from the coordinate given
   /**

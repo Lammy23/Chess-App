@@ -35,8 +35,8 @@ export const MovementProvider = ({ children, appRef }) => {
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   const playSound = (sound) => {
-    const audio = new Audio(`assets/sounds/${sound}.mp3`);
-    audio.play();
+    // const audio = new Audio(`assets/sounds/${sound}.mp3`);
+    // audio.play();
   };
 
   /**
@@ -217,6 +217,7 @@ export const MovementProvider = ({ children, appRef }) => {
           boardState,
           futureBoardState,
           pieceType,
+          moveHistory,
         });
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
@@ -240,8 +241,13 @@ export const MovementProvider = ({ children, appRef }) => {
 
           setMoveHistory((prev) => [
             ...prev,
-            {from: activePieceOrigin, to: currentCoordinates, piece: pieceType },
+            {
+              from: activePieceOrigin,
+              to: currentCoordinates,
+              piece: pieceType,
+            },
           ]);
+          console.log("moveHistory", moveHistory);
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }
@@ -304,7 +310,7 @@ export const MovementProvider = ({ children, appRef }) => {
         movePiece,
         dropPiece,
         boardState,
-        moveHistory
+        moveHistory,
       }}
     >
       {children}

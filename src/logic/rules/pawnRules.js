@@ -1,3 +1,6 @@
+import { files } from "../../components/constants";
+import { ChessCoordinate } from "../Coordinates";
+
 export function pawnMove({
   previousRank,
   currentRank,
@@ -7,7 +10,7 @@ export function pawnMove({
   currentFileNumber,
   boardState,
   teamColour,
-  moveHistory
+  moveHistory,
 }) {
   // Below 2 lines are for if its a white or black pawn
   const specialRank = teamColour === "WHITE" ? 2 : 7;
@@ -53,7 +56,9 @@ export function pawnMove({
       )
     ) {
       return true;
-    } else if (this.validEnPassant(previousFile, currentFile, previousRank, currentRank, boardState, teamColour, moveHistory)) {
+    } else if (
+      this.isValidEnPassant()
+    ) {
       return true;
     }
   }
@@ -67,20 +72,57 @@ export function getPossiblePawnMoves() {}
 //   console.log(args)
 // }
 
-export function validEnPassant(previousFile, currentFile, previousRank, currentRank, boardState, teamColour, moveHistory) {
-  const pawnDirection = (teamColour === "WHITE") ? 1 : -1;
+export function validEnPassant({
+  previousFile,
+  currentFile,
+  previousRank,
+  currentRank,
+  boardState,
+  teamColour,
+  moveHistory,
+  futureBoardState,
+}) {
+  // Debugging
+  console.log("Parameters");
+  console.log(`previousFile: ${previousFile}`);
+  console.log(`currentFile: ${currentFile}`);
+  console.log(`previousRank: ${previousRank}`);
+  console.log(`currentRank: ${currentRank}`);
+  console.log("boardState", boardState);
+  console.log(`teamColour: ${teamColour}`);
+  console.log("moveHistory", moveHistory);
+
+  const enemyColor = teamColour === "WHITE" ? "b" : "w";
+  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
   const lastMove = moveHistory[moveHistory.length - 1];
   if (!lastMove) return false;
 
-  const lastMovePiece = boardState[lastMove.to];
+  const lastMovePiece = boardState[lastMove.piece];
+
+  const lastMoveFrom = new ChessCoordinate(lastMove.from);
+  const lastMoveTo = new ChessCoordinate(lastMove.to);
+
   if (
-    lastMovePiece === `pawn_${(teamColour === "WHITE") ? "b" : "w"}` &&
-    lastMove.from[1] - lastMove.to[1] === 2 * pawnDirection &&
-    lastMove.to[0] === currentFile &&
-    previousRank === lastMove.to[1]
+    lastMoveTo.plus({ fileStep: 0, rankStep: 1 }).coordinate ===
+    `${currentFile}${currentRank}`
   ) {
-    return true;
+    lastMoveTo.plus({ fileStep: 0, rankStep: -1 })
+    if (
+      lastMoveFrom.plus({ rankStep: -2, fileStep: 0 }).coordinate ===
+      lastMoveTo.coordinate
+    ) {
+      return true
+    }
   }
+
+  // if (
+  //   lastMovePiece === `pawn_${enemyColor}` &&
+  //   lastMove.from[1] - lastMove.to[1] === 2 * pawnDirection &&
+  //   lastMove.to[0] === currentFile &&
+  //   previousRank === lastMove.to[1]
+  // ) {
+  //   return true;
+  // }
 
   return false;
 }

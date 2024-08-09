@@ -48,6 +48,8 @@ export class ChessCoordinate {
       this.file = newFile;
       this.coordinate = `${numToFile[newFile]}${newRank}`;
     }
+
+    return this
   }
 
   isOccupied({ boardState }) {
