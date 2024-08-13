@@ -39,14 +39,13 @@ export function knightMove({
 }
 
 export function possibleKnightMoves({ futureBoardState, teamColour }) {
-  let boardState = futureBoardState;
   var color = teamColour === "WHITE" ? "w" : "b";
 
   // 1. Get knight coordinates
   var knightCoordinates = [];
 
   for (let coordinate of allChessCoordinates) {
-    if (boardState[coordinate] === `knight_${color}`) {
+    if (futureBoardState[coordinate] === `knight_${color}`) {
       knightCoordinates.push(new ChessCoordinate(coordinate));
     }
   }
@@ -69,8 +68,8 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
       coordinate.plus({ fileStep: x[i], rankStep: y[i] });
       if (coordinate.coordinate !== origin) {
         if (
-          !coordinate.isOccupied({ boardState }) ||
-          coordinate.isOccupiedByOpponent({ boardState, teamColour })
+          !coordinate.isOccupied({ futureBoardState }) ||
+          coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
         ) {
           moves.push(coordinate.coordinate);
         }
@@ -81,8 +80,8 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
       coordinate.plus({ rankStep: x[i], fileStep: y[i] });
       if (coordinate.coordinate !== origin) {
         if (
-          !coordinate.isOccupied({ boardState }) ||
-          coordinate.isOccupiedByOpponent({ boardState, teamColour })
+          !coordinate.isOccupied({ futureBoardState }) ||
+          coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
         ) {
           moves.push(coordinate.coordinate);
         }

@@ -35,8 +35,8 @@ export const MovementProvider = ({ children, appRef }) => {
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   const playSound = (sound) => {
-    // const audio = new Audio(`assets/sounds/${sound}.mp3`);
-    // audio.play();
+    const audio = new Audio(`assets/sounds/${sound}.mp3`);
+    audio.play();
   };
 
   /**
@@ -220,14 +220,19 @@ export const MovementProvider = ({ children, appRef }) => {
           moveHistory,
         });
 
+        let soundToPlay;
+
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (referee.isMove()) {
-          playSound("pipes");
-          if (referee.isChecking(referee.getPossibleMoves())) {
-            console.log('check')
-            playSound("mewing");
+          soundToPlay = 'mariojump'
+          if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
+            console.log("check");
+            soundToPlay = 'getout'
           }
+
+          playSound(soundToPlay)
+
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */
@@ -248,7 +253,6 @@ export const MovementProvider = ({ children, appRef }) => {
               piece: pieceType,
             },
           ]);
-          console.log("moveHistory", moveHistory);
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }

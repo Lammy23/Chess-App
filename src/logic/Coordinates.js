@@ -52,13 +52,12 @@ export class ChessCoordinate {
     return this
   }
 
-  isOccupied({ boardState }) {
-    // eargghh
-    return !!boardState[this.coordinate];
+  isOccupied({ futureBoardState }) {
+    return !!futureBoardState[this.coordinate];
   }
 
-  isOccupiedByOpponent({ boardState, teamColour }) {
-    const piece = boardState[this.coordinate];
+  isOccupiedByOpponent({ futureBoardState, teamColour }) {
+    const piece = futureBoardState[this.coordinate];
     const pieceColor = piece ? piece.slice(-1) : null;
     const enemyColor = teamColour.toLowerCase() === "white" ? "b" : "w";
 
