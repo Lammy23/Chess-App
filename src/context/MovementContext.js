@@ -225,13 +225,17 @@ export const MovementProvider = ({ children, appRef }) => {
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (referee.isMove()) {
-          soundToPlay = 'mariojump'
+          soundToPlay = "mariojump";
           if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
             console.log("check");
-            soundToPlay = 'getout'
+            soundToPlay = "getout";
+            if (referee.isCheckmatingOpponent()) {
+              console.log("checkmate");
+              soundToPlay = "englishorspanish";
+            }
           }
 
-          playSound(soundToPlay)
+          playSound(soundToPlay);
 
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.

@@ -51,7 +51,8 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
   }
 
   // 2. Calculate knight moves.
-  const moves = [];
+  let moveList = [];
+  const moveMap = [];
 
   // possible knight moves
   let x = [2, 2, -2, -2];
@@ -71,8 +72,11 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
           !coordinate.isOccupied({ futureBoardState }) ||
           coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
         ) {
-          moves.push(coordinate.coordinate);
-        }
+          moveList.push(coordinate.coordinate);
+          moveMap.push({
+            from: origin,
+            to: coordinate.coordinate,
+          });        }
       }
 
       coordinate.setCoordinate(origin);
@@ -83,8 +87,11 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
           !coordinate.isOccupied({ futureBoardState }) ||
           coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
         ) {
-          moves.push(coordinate.coordinate);
-        }
+          moveList.push(coordinate.coordinate);
+          moveMap.push({
+            from: origin,
+            to: coordinate.coordinate,
+          });        }
       }
 
       coordinate.setCoordinate(origin);
@@ -95,5 +102,5 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
     f(coordinate);
   });
 
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }

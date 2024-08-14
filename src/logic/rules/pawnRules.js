@@ -78,7 +78,9 @@ export function possiblePawnMoves({ futureBoardState, teamColour }) {
 
   // 2. Calculate Pawn moves
 
-  const moves = [];
+  let moveList = [];
+  const moveMap = [];
+
   /**
    *
    * @param {ChessCoordinate} coordinate
@@ -91,23 +93,28 @@ export function possiblePawnMoves({ futureBoardState, teamColour }) {
         coordinate.plus({ fileStep: 0, rankStep: 2 * pawnDirection }) !== origin
       ) {
         if (!coordinate.isOccupied({ futureBoardState }))
-          moves.push(coordinate.coordinate);
-      }
+          moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });      }
     }
     if (
       coordinate.plus({ fileStep: 0, rankStep: 1 * pawnDirection }) !== origin
     ) {
       if (!coordinate.isOccupied({ futureBoardState }))
-        moves.push(coordinate.coordinate);
-    }
+        moveList.push(coordinate.coordinate);
+      moveMap.push({
+        from: origin,
+        to: coordinate.coordinate,
+      });    }
   };
 
   for (let coordinate of pawnCoordinates) {
     check(coordinate);
   }
 
-  console.log(moves)
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }
 
 export function possiblePawnCaptures({ futureBoardState, teamColour }) {
@@ -125,7 +132,8 @@ export function possiblePawnCaptures({ futureBoardState, teamColour }) {
 
   // 2. Calculate Pawn moves
 
-  const moves = [];
+  let moveList = [];
+  const moveMap = [];
 
   /**
    * Function to check if the pawn can capture into the given coordinate
@@ -144,8 +152,11 @@ export function possiblePawnCaptures({ futureBoardState, teamColour }) {
         !coordinate.isOccupied({ futureBoardState }) ||
         coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
       )
-        moves.push(coordinate.coordinate);
-    }
+      moveList.push(coordinate.coordinate);
+      moveMap.push({
+        from: origin,
+        to: coordinate.coordinate,
+      });    }
 
     coordinate.setCoordinate(origin);
 
@@ -159,14 +170,17 @@ export function possiblePawnCaptures({ futureBoardState, teamColour }) {
         !coordinate.isOccupied({ futureBoardState }) ||
         coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
       )
-        moves.push(coordinate.coordinate);
-    }
+      moveList.push(coordinate.coordinate);
+      moveMap.push({
+        from: origin,
+        to: coordinate.coordinate,
+      });    }
   };
 
   for (let coordinate of pawnCoordinates) {
     check(coordinate);
   }
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }
 
 export function validEnPassant({

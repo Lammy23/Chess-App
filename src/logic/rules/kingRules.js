@@ -58,7 +58,8 @@ export function possibleKingMoves({ futureBoardState, teamColour }) {
 
   // 2. Calculate king moves
 
-  const moves = [];
+  const moveList = [];
+  const moveMap = [];
 
   /**
    *
@@ -79,8 +80,13 @@ export function possibleKingMoves({ futureBoardState, teamColour }) {
           if (
             !coordinate.isOccupied({ futureBoardState }) ||
             coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
-          )
-            moves.push(coordinate.coordinate);
+          ) {
+            moveList.push(coordinate.coordinate);
+            moveMap.push({
+              from: origin,
+              to: coordinate.coordinate,
+            });
+          }
         }
         coordinate.setCoordinate(origin);
       }
@@ -91,5 +97,5 @@ export function possibleKingMoves({ futureBoardState, teamColour }) {
     check(coordinate);
   }
 
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }
