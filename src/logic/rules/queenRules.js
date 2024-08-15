@@ -107,12 +107,15 @@ export function possibleQueenMoves({ futureBoardState, teamColour }) {
   }
 
   // 2. Calculate moves. Queen moves in eight directions
-  let moves = [];
+  let moveList = [];
+  const moveMap = [];
 
   queenCoordinates.forEach((cdn) => {
-    moves.push(...this.getPossibleCrossMoves(cdn));
-    moves.push(...this.getPossibleDiagonalMoves(cdn));
+    moveList.push(...this.getPossibleCrossMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleCrossMoves(cdn).moveMap);
+    moveList.push(...this.getPossibleDiagonalMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleDiagonalMoves(cdn).moveMap)
   });
 
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }

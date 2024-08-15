@@ -1,6 +1,5 @@
 import React from "react";
 import ChessTile from "../components/ChessTile";
-
 import "./ChessBoard.css";
 import { useMovementContext } from "../context/MovementContext";
 
@@ -15,7 +14,7 @@ function ChessBoard() {
     .reverse()
     .forEach((rank) => files.forEach((file) => board.push(file + rank)));
 
-  const { movePiece, dropPiece, boardState } =
+  const { movePiece, dropPiece, boardState, moveHistory } =
     useMovementContext(); // Using variables and functions from the MovementContext (Logic)
 
   if (boardState)

@@ -31,10 +31,11 @@ export const MovementProvider = ({ children, appRef }) => {
     useState(null); /* The div element that is the active piece */
   const [activePieceOrigin, setActivePieceOrigin] =
     useState(""); /* The position string that the active piece came from */
+  const [moveHistory, setMoveHistory] = useState([]);
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   const playSound = (sound) => {
-    const audio = new Audio(`assets/sounds/${sound}.m4a`);
+    const audio = new Audio(`assets/sounds/${sound}.mp3`);
     audio.play();
   };
 
@@ -216,16 +217,26 @@ export const MovementProvider = ({ children, appRef }) => {
           boardState,
           futureBoardState,
           pieceType,
+          moveHistory,
         });
+
+        let soundToPlay;
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (referee.isMove()) {
-          playSound("move");
-          if (referee.isChecking(referee.getPossibleMoves())) {
-            console.log("CHECK!");
-            playSound("check");
+          soundToPlay = "mariojump";
+          if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
+            console.log("check");
+            soundToPlay = "getout";
+            if (referee.isCheckmatingOpponent()) {
+              console.log("checkmate");
+              soundToPlay = "englishorspanish";
+            }
           }
+
+          playSound(soundToPlay);
+
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
             This automatically triggers a re-render (as it's a state variable) */
@@ -237,6 +248,17 @@ export const MovementProvider = ({ children, appRef }) => {
             updatedPosition[activePieceOrigin] = null;
             return updatedPosition;
           });
+
+          setMoveHistory((prev) => [
+            ...prev,
+            {
+              from: activePieceOrigin,
+              to: currentCoordinates,
+              piece: pieceType,
+            },
+          ]);
+        } else {
+          playSound("buzzer"); //Sound queue for illegal moves
         }
       }
       // Will reset piece if the position isn't updated
@@ -297,6 +319,7 @@ export const MovementProvider = ({ children, appRef }) => {
         movePiece,
         dropPiece,
         boardState,
+        moveHistory,
       }}
     >
       {children}
