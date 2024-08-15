@@ -35,8 +35,8 @@ export const MovementProvider = ({ children, appRef }) => {
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   const playSound = (sound) => {
-    // const audio = new Audio(`assets/sounds/${sound}.mp3`);
-    // audio.play();
+    const audio = new Audio(`assets/sounds/${sound}.mp3`);
+    audio.play();
   };
 
   /**
