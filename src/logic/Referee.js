@@ -1,21 +1,27 @@
-import { allChessCoordinates } from "../components/constants";
+import { allChessCoordinates, deepEqual } from "../components/constants";
 import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
-import { kingMove } from "./rules/kingRules";
+import { kingMove, possibleKingMoves } from "./rules/kingRules";
 import { possibleKnightMoves, knightMove } from "./rules/knightRules";
-import { pawnMove, validEnPassant } from "./rules/pawnRules";
+import {
+  pawnMove,
+  possiblePawnCaptures,
+  possiblePawnMoves,
+  validEnPassant,
+} from "./rules/pawnRules";
 import { possibleQueenMoves, queenMove } from "./rules/queenRules";
 import { possibleRookMoves, rookMove } from "./rules/rookRules";
-
-import { ChessCoordinate } from "./Coordinates";
 
 export default class Referee {
   // Fields
   #refContext = {};
 
-  #getEnemyKingCoordinates() {
-    const enemyColor = this.#refContext.teamColour === "WHITE" ? "b" : "w";
+  #getEnemyKingCoordinates(teamColour) {
+    const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
+    const enemyColor = ourColor === "WHITE" ? "b" : "w";
     for (let coordinate of allChessCoordinates) {
-      if (this.#refContext.boardState[coordinate] === `king_${enemyColor}`) {
+      if (
+        this.#refContext.futureBoardState[coordinate] === `king_${enemyColor}`
+      ) {
         return coordinate;
       }
     }
@@ -107,10 +113,11 @@ export default class Referee {
   getPossibleDiagonalMoves(coordinate) {
     // Assuming coordinate is of type ChessCoordinate
 
-    let boardState = this.#refContext.boardState;
+    let futureBoardState = this.#refContext.futureBoardState;
     let teamColour = this.#refContext.teamColour;
 
-    let moves = [];
+    let moveList = [];
+    let moveMap = [];
     let origin = coordinate.coordinate;
 
     let x = [-1, 1, -1, 1];
@@ -118,27 +125,38 @@ export default class Referee {
 
     for (let i = 0; i < x.length; i++) {
       do {
-        moves.push(coordinate.coordinate);
+        moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });
         coordinate.plus({ fileStep: x[i], rankStep: y[i] });
-      } while (!(coordinate.isOccupied({ boardState }) || coordinate.isEdge()));
+      } while (
+        !(coordinate.isOccupied({ futureBoardState }) || coordinate.isEdge())
+      );
 
-      if (coordinate.isOccupiedByOpponent({ boardState, teamColour })) {
-        moves.push(coordinate.coordinate);
+      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+        moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });
       }
 
       coordinate.setCoordinate(origin);
     }
 
-    return moves;
+    return { moveList: moveList, moveMap: moveMap };
   }
 
   getPossibleCrossMoves(coordinate) {
     // Assuming coordinate is of type ChessCoordinate
 
-    let boardState = this.#refContext.boardState;
+    let futureBoardState = this.#refContext.futureBoardState;
     let teamColour = this.#refContext.teamColour;
 
-    let moves = [];
+    const moveList = [];
+    const moveMap = [];
     let origin = coordinate.coordinate;
 
     let x = [1, -1];
@@ -146,42 +164,88 @@ export default class Referee {
     for (let i = 0; i < x.length; i++) {
       do {
         // horizontal movement
-        moves.push(coordinate.coordinate);
+        moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });
         coordinate.plus({ fileStep: x[i], rankStep: 0 });
       } while (
-        !(coordinate.isOccupied({ boardState }) || coordinate.isFileEdge())
+        !(
+          coordinate.isOccupied({ futureBoardState }) || coordinate.isFileEdge()
+        )
       );
-      if (coordinate.isOccupiedByOpponent({ boardState, teamColour })) {
-        moves.push(coordinate.coordinate);
+      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+        moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });
       }
 
       coordinate.setCoordinate(origin);
 
       do {
         // vertical movement
-        moves.push(coordinate.coordinate);
+        moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });
         coordinate.plus({ fileStep: 0, rankStep: x[i] });
       } while (
-        !(coordinate.isOccupied({ boardState }) || coordinate.isRankEdge())
+        !(
+          coordinate.isOccupied({ futureBoardState }) || coordinate.isRankEdge()
+        )
       );
-      if (coordinate.isOccupiedByOpponent({ boardState, teamColour })) {
-        moves.push(coordinate.coordinate);
+      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+        moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });
       }
 
       coordinate.setCoordinate(origin);
     }
 
-    return moves;
+    return { moveList: moveList, moveMap: moveMap };
   }
 
-  getPossibleKnightMove = () =>
-    possibleKnightMoves.apply(this, [this.#refContext]);
-  getPossibleBishopMoves = () =>
-    possibleBishopMoves.apply(this, [this.#refContext]);
-  getPossibleRookMoves = () =>
-    possibleRookMoves.apply(this, [this.#refContext]);
-  getPossibleQueenMoves = () =>
-    possibleQueenMoves.apply(this, [this.#refContext]);
+  // Provide temporary modified reference context
+  modifyRefContext = (teamColour, refContext) => {
+    refContext.teamColour = teamColour;
+    return refContext;
+  };
+
+  getPossibleKnightMove = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possibleKnightMoves.apply(this, [refContext]);
+  };
+  getPossibleBishopMoves = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possibleBishopMoves.apply(this, [refContext]);
+  };
+  getPossibleRookMoves = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possibleRookMoves.apply(this, [refContext]);
+  };
+  getPossibleQueenMoves = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possibleQueenMoves.apply(this, [refContext]);
+  };
+  getPossiblePawnCaptures = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possiblePawnCaptures.apply(this, [refContext]);
+  };
+  getPossibleKingMoves = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possibleKingMoves.apply(this, [refContext]);
+  };
+  getPossiblePawnMoves = (teamColour) => {
+    let refContext = this.modifyRefContext(teamColour, this.#refContext);
+    return possiblePawnMoves.apply(this, [refContext]);
+  };
 
   isValidEnPassant = () => validEnPassant.apply(this, [this.#refContext]);
 
@@ -259,20 +323,37 @@ export default class Referee {
   }
 
   // #TODO: moves could be private field
-  getPossibleMoves() {
+  getPossibleMoves(teamColour) {
     const moves = [];
-    moves.push(...this.getPossibleKnightMove());
-    moves.push(...this.getPossibleBishopMoves());
-    moves.push(...this.getPossibleRookMoves());
-    moves.push(...this.getPossibleQueenMoves());
+    moves.push(...this.getPossibleKnightMove(teamColour).moveMap);
+    moves.push(...this.getPossibleBishopMoves(teamColour).moveMap);
+    moves.push(...this.getPossibleRookMoves(teamColour).moveMap);
+    moves.push(...this.getPossibleQueenMoves(teamColour).moveMap);
+    moves.push(...this.getPossibleKingMoves(teamColour).moveMap);
+    moves.push(...this.getPossiblePawnMoves(teamColour).moveMap);
+    moves.push(...this.getPossiblePawnCaptures(teamColour).moveMap);
 
     return moves;
   }
 
-  isChecking(moves) {
+  getPossibleCaptures(teamColour) {
+    const moves = [];
+    moves.push(...this.getPossibleKnightMove(teamColour).moveList);
+    moves.push(...this.getPossibleBishopMoves(teamColour).moveList);
+    moves.push(...this.getPossibleRookMoves(teamColour).moveList);
+    moves.push(...this.getPossibleQueenMoves(teamColour).moveList);
+    moves.push(...this.getPossibleKingMoves(teamColour).moveList);
+    moves.push(...this.getPossiblePawnCaptures(teamColour).moveList);
+
+    return moves;
+  }
+
+  isCheckingOpponent(teamColour) {
     // Checking if king is part of possible moves.
     // first find king
-    const enemyKingCoordinates = this.#getEnemyKingCoordinates();
+    const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
+    const moves = this.getPossibleCaptures(ourColor);
+    const enemyKingCoordinates = this.#getEnemyKingCoordinates(ourColor);
     for (let coordinate of moves) {
       if (coordinate === enemyKingCoordinates) {
         return true;
@@ -281,8 +362,47 @@ export default class Referee {
     return false;
   }
 
-  isCheckmate() {
-    // earghhh
+  isUnderCheck(teamColour) {
+    const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
+    const enemyColor = ourColor === "WHITE" ? "BLACK" : "WHITE";
+    // Confirm enemy is checking our king
+    return this.isCheckingOpponent(enemyColor);
+  }
+
+  isCheckmatingOpponent(teamColour) {
+    var isCheckmated = true;
+    // For all of our possible moves if made, see if we're still under check.
+    const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
+    const enemyColor = ourColor === "WHITE" ? "BLACK" : "WHITE";
+    const moves = this.getPossibleMoves(enemyColor);
+
+    const originalBoard = { ...this.#refContext.futureBoardState };
+    const project = (move) => {
+      this.#refContext.futureBoardState[move.to] =
+        this.#refContext.futureBoardState[move.from];
+      this.#refContext.futureBoardState[move.from] = null;
+    };
+
+    const reset = () =>
+      (this.#refContext.futureBoardState = { ...originalBoard });
+
+    for (let move of moves) {
+      project(move);
+      // Check if we're under check
+      if (!this.isUnderCheck(enemyColor)) {
+        console.log(move);
+        isCheckmated = false;
+        break;
+      }
+      reset();
+    }
+
+    if (deepEqual(this.#refContext.futureBoardState, originalBoard)) {
+      console.log("All's good");
+      console.log("isCheckmated", isCheckmated);
+    }
+
+    return isCheckmated;
   }
 
   /**

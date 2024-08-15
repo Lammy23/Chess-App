@@ -73,11 +73,13 @@ export function possibleRookMoves({ futureBoardState, teamColour }) {
   }
 
   // 2. Calculate moves. Rook moves in four directions
-  let moves = [];
+  let moveList = [];
+  const moveMap = [];
 
   rookCoordinates.forEach((cdn) => {
-    moves.push(...this.getPossibleCrossMoves(cdn));
+    moveList.push(...this.getPossibleCrossMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleCrossMoves(cdn).moveMap);
   });
 
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }

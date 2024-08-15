@@ -80,11 +80,13 @@ export function possibleBishopMoves({ futureBoardState, teamColour }) {
   }
 
   // 2. Calculate moves. Bishop moves in four directions
-  let moves = [];
+  let moveList = [];
+  const moveMap = [];
 
   bishopCoordinates.forEach((cdn) => {
-    moves.push(...this.getPossibleDiagonalMoves(cdn));
+    moveList.push(...this.getPossibleDiagonalMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleDiagonalMoves(cdn).moveMap)
   });
 
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }

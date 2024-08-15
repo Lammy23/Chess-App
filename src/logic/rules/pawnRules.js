@@ -1,4 +1,4 @@
-import { files } from "../../components/constants";
+import { allChessCoordinates } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function pawnMove({
@@ -56,36 +56,132 @@ export function pawnMove({
       )
     ) {
       return true;
-    } else if (
-      this.isValidEnPassant()
-    ) {
+    } else if (this.isValidEnPassant()) {
       return true;
     }
   }
 }
 
-export function getPossiblePawnMoves({futureBoardState, teamColour}) {
-  let boardState = futureBoardState;
+export function possiblePawnMoves({ futureBoardState, teamColour }) {
   var color = teamColour === "WHITE" ? "w" : "b";
+  const specialRank = teamColour === "WHITE" ? 2 : 7;
+  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
 
-// 1. Get Pawn coordinates
-var pawnCoordinates = []
+  // 1. Get Pawn coordinates
+  var pawnCoordinates = [];
 
-// for (let coordinate of allChessCoordinates) {
-//   if (boardState[coordinate] === `knight_${color}`) {
-//     knightCoordinates.push(new ChessCoordinate(coordinate));
-//   }
-// }
+  for (let coordinate of allChessCoordinates) {
+    if (futureBoardState[coordinate] === `pawn_${color}`) {
+      pawnCoordinates.push(new ChessCoordinate(coordinate));
+    }
+  }
 
-// 2. Calculate Pawn moves
+  // 2. Calculate Pawn moves
 
+  let moveList = [];
+  const moveMap = [];
+
+  /**
+   *
+   * @param {ChessCoordinate} coordinate
+   */
+  const check = (coordinate) => {
+    let origin = coordinate.coordinate;
+
+    if (coordinate.rank === specialRank) {
+      if (
+        coordinate.plus({ fileStep: 0, rankStep: 2 * pawnDirection }) !== origin
+      ) {
+        if (!coordinate.isOccupied({ futureBoardState }))
+          moveList.push(coordinate.coordinate);
+        moveMap.push({
+          from: origin,
+          to: coordinate.coordinate,
+        });      }
+    }
+    if (
+      coordinate.plus({ fileStep: 0, rankStep: 1 * pawnDirection }) !== origin
+    ) {
+      if (!coordinate.isOccupied({ futureBoardState }))
+        moveList.push(coordinate.coordinate);
+      moveMap.push({
+        from: origin,
+        to: coordinate.coordinate,
+      });    }
+  };
+
+  for (let coordinate of pawnCoordinates) {
+    check(coordinate);
+  }
+
+  return { moveList: moveList, moveMap: moveMap };
 }
 
-// DEBUG
-// export function test(args) {
-//   console.log(typeof args)
-//   console.log(args)
-// }
+export function possiblePawnCaptures({ futureBoardState, teamColour }) {
+  var color = teamColour === "WHITE" ? "w" : "b";
+  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
+
+  // 1. Get Pawn coordinates
+  var pawnCoordinates = [];
+
+  for (let coordinate of allChessCoordinates) {
+    if (futureBoardState[coordinate] === `pawn_${color}`) {
+      pawnCoordinates.push(new ChessCoordinate(coordinate));
+    }
+  }
+
+  // 2. Calculate Pawn moves
+
+  let moveList = [];
+  const moveMap = [];
+
+  /**
+   * Function to check if the pawn can capture into the given coordinate
+   * @param {ChessCoordinate} coordinate
+   */
+  const check = (coordinate) => {
+    let origin = coordinate.coordinate;
+
+    if (
+      coordinate.plus({
+        fileStep: 1,
+        rankStep: 1 * pawnDirection,
+      }).coordinate !== origin
+    ) {
+      if (
+        !coordinate.isOccupied({ futureBoardState }) ||
+        coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+      )
+      moveList.push(coordinate.coordinate);
+      moveMap.push({
+        from: origin,
+        to: coordinate.coordinate,
+      });    }
+
+    coordinate.setCoordinate(origin);
+
+    if (
+      coordinate.plus({
+        fileStep: -1,
+        rankStep: 1 * pawnDirection,
+      }).coordinate !== origin
+    ) {
+      if (
+        !coordinate.isOccupied({ futureBoardState }) ||
+        coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+      )
+      moveList.push(coordinate.coordinate);
+      moveMap.push({
+        from: origin,
+        to: coordinate.coordinate,
+      });    }
+  };
+
+  for (let coordinate of pawnCoordinates) {
+    check(coordinate);
+  }
+  return { moveList: moveList, moveMap: moveMap };
+}
 
 export function validEnPassant({
   previousFile,
@@ -95,7 +191,6 @@ export function validEnPassant({
   boardState,
   teamColour,
   moveHistory,
-  futureBoardState,
 }) {
   // Debugging
   console.log("Parameters");
@@ -122,23 +217,19 @@ export function validEnPassant({
     lastMoveTo.plus({ fileStep: 0, rankStep: 1 * pawnDirection }).coordinate ===
     `${currentFile}${currentRank}`
   ) {
-    lastMoveTo.plus({ fileStep: 0, rankStep: -1 * pawnDirection})
+    lastMoveTo.plus({ fileStep: 0, rankStep: -1 * pawnDirection });
     if (
-      lastMoveFrom.plus({ rankStep: -2 * pawnDirection, fileStep: 0 }).coordinate ===
-      lastMoveTo.coordinate
+      lastMoveFrom.plus({ rankStep: -2 * pawnDirection, fileStep: 0 })
+        .coordinate === lastMoveTo.coordinate
     ) {
-      return true
+      return true;
     }
   }
-
-  // if (
-  //   lastMovePiece === `pawn_${enemyColor}` &&
-  //   lastMove.from[1] - lastMove.to[1] === 2 * pawnDirection &&
-  //   lastMove.to[0] === currentFile &&
-  //   previousRank === lastMove.to[1]
-  // ) {
-  //   return true;
-  // }
-
   return false;
 }
+
+// DEBUG
+// export function test(args) {
+//   console.log(typeof args)
+//   console.log(args)
+// }
