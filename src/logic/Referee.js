@@ -390,7 +390,6 @@ export default class Referee {
       project(move);
       // Check if we're under check
       if (!this.isUnderCheck(enemyColor)) {
-        console.log(move);
         isCheckmated = false;
         break;
       }
@@ -398,7 +397,6 @@ export default class Referee {
     }
 
     if (deepEqual(this.#refContext.futureBoardState, originalBoard)) {
-      console.log("All's good");
       console.log("isCheckmated", isCheckmated);
     }
 

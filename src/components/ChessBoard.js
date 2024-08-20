@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ChessTile from "../components/ChessTile";
 import "./ChessBoard.css";
 import { useMovementContext } from "../context/MovementContext";
@@ -16,8 +16,21 @@ function ChessBoard() {
 
   // Need to fix this since moveHistory is not used here. Is there a way to use it here or take it out
   // without it affecting movement context?
-  const { movePiece, dropPiece, boardState, moveHistory } =
-    useMovementContext(); // Using variables and functions from the MovementContext (Logic)
+  const { movePiece, dropPiece, boardState, rewind } = useMovementContext(); // Using variables and functions from the MovementContext (Logic)
+
+  useEffect(() => {
+    const handleRewind = (e) => {
+      if (e.key === "ArrowLeft") {
+        rewind(e);
+      } else if (e.key === "ArrowRight") {
+        // to be coded
+      }
+    };
+    window.addEventListener("keydown", handleRewind);
+    return () => {
+      window.removeEventListener("keydown", handleRewind);
+    };
+  }, [rewind]);
 
   if (boardState)
     // Checking if the starting position of the pieces (hashmap) has been assigned yet by MovementContext

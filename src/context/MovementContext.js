@@ -33,6 +33,8 @@ export const MovementProvider = ({ children, appRef }) => {
   const [activePieceOrigin, setActivePieceOrigin] =
     useState(""); /* The position string that the active piece came from */
   const [moveHistory, setMoveHistory] = useState([]);
+  const [boardHistory, setBoardHistory] = useState([]);
+  const [moveCount, setMoveCount] = useState(0);
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
   const playSound = (sound) => {
@@ -105,6 +107,19 @@ export const MovementProvider = ({ children, appRef }) => {
 
     if (x && y) return `${x}${y}`;
     else return null;
+  }
+
+  function rewind(e) {
+    console.log("rewinding");
+    console.log(boardHistory)
+    if (moveCount === 0) return false;
+    const newCount = moveCount - 1;
+    setMoveCount(newCount);
+    console.log(boardHistory[newCount]);
+    setBoardState(boardHistory[newCount]);
+
+    // reflect turns
+    currentTurn = currentTurn === "WHITE" ? "BLACK" : "WHITE";
   }
 
   /**
@@ -227,12 +242,11 @@ export const MovementProvider = ({ children, appRef }) => {
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
         if (pieceType !== undefined && pieceType !== null) {
-          if(pieceType.includes("_w")) {
+          if (pieceType.includes("_w")) {
             pickedUpPiece = "WHITE";
-          } else if(pieceType.includes("_b")) {
+          } else if (pieceType.includes("_b")) {
             pickedUpPiece = "BLACK";
-          } 
-        console.log(pickedUpPiece);
+          }
         }
         if (referee.isMove() && currentTurn === pickedUpPiece) {
           soundToPlay = "mariojump";
@@ -246,6 +260,10 @@ export const MovementProvider = ({ children, appRef }) => {
           }
 
           playSound(soundToPlay);
+          console.log(boardHistory);
+          console.log(moveCount);
+
+          const newCount = moveCount + 1;
 
           setBoardState((prev) => {
             /* If the piece is dropped in a new position and is not out of bounds, update the hashmap.
@@ -256,6 +274,13 @@ export const MovementProvider = ({ children, appRef }) => {
             }; /* Hard to figure piece of code that I documented in problems and solutions */
             updatedPosition[currentCoordinates] = oldCoordinates;
             updatedPosition[activePieceOrigin] = null;
+
+            //Add board to list
+            setMoveCount(newCount);
+            setBoardHistory((prev) => {
+              prev[newCount] = updatedPosition;
+              return [...prev];
+            });
             return updatedPosition;
           });
 
@@ -274,7 +299,6 @@ export const MovementProvider = ({ children, appRef }) => {
           } else if (currentTurn === "BLACK") {
             currentTurn = "WHITE";
           }
-          console.log(currentTurn);
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }
@@ -289,40 +313,80 @@ export const MovementProvider = ({ children, appRef }) => {
 
   useEffect(() => {
     /* Upon loading the app, this should be the default position of the chess board */
-    setBoardState({
-      // Hashmap representing starting positions, will update every position for each piece when moved
-      a1: "rook_w",
-      b1: "knight_w",
-      c1: "bishop_w",
-      d1: "queen_w",
-      e1: "king_w",
-      f1: "bishop_w",
-      g1: "knight_w",
-      h1: "rook_w",
-      a2: "pawn_w",
-      b2: "pawn_w",
-      c2: "pawn_w",
-      d2: "pawn_w",
-      e2: "pawn_w",
-      f2: "pawn_w",
-      g2: "pawn_w",
-      h2: "pawn_w",
-      a7: "pawn_b",
-      b7: "pawn_b",
-      c7: "pawn_b",
-      d7: "pawn_b",
-      e7: "pawn_b",
-      f7: "pawn_b",
-      g7: "pawn_b",
-      h7: "pawn_b",
-      a8: "rook_b",
-      b8: "knight_b",
-      c8: "bishop_b",
-      d8: "queen_b",
-      e8: "king_b",
-      f8: "bishop_b",
-      g8: "knight_b",
-      h8: "rook_b",
+    setBoardState(() => {
+      setBoardHistory((prev) => {
+        prev[moveCount] = {
+          // Hashmap representing starting positions, will update every position for each piece when moved
+          a1: "rook_w",
+          b1: "knight_w",
+          c1: "bishop_w",
+          d1: "queen_w",
+          e1: "king_w",
+          f1: "bishop_w",
+          g1: "knight_w",
+          h1: "rook_w",
+          a2: "pawn_w",
+          b2: "pawn_w",
+          c2: "pawn_w",
+          d2: "pawn_w",
+          e2: "pawn_w",
+          f2: "pawn_w",
+          g2: "pawn_w",
+          h2: "pawn_w",
+          a7: "pawn_b",
+          b7: "pawn_b",
+          c7: "pawn_b",
+          d7: "pawn_b",
+          e7: "pawn_b",
+          f7: "pawn_b",
+          g7: "pawn_b",
+          h7: "pawn_b",
+          a8: "rook_b",
+          b8: "knight_b",
+          c8: "bishop_b",
+          d8: "queen_b",
+          e8: "king_b",
+          f8: "bishop_b",
+          g8: "knight_b",
+          h8: "rook_b",
+        };
+        return [...prev];
+      });
+      return {
+        // Hashmap representing starting positions, will update every position for each piece when moved
+        a1: "rook_w",
+        b1: "knight_w",
+        c1: "bishop_w",
+        d1: "queen_w",
+        e1: "king_w",
+        f1: "bishop_w",
+        g1: "knight_w",
+        h1: "rook_w",
+        a2: "pawn_w",
+        b2: "pawn_w",
+        c2: "pawn_w",
+        d2: "pawn_w",
+        e2: "pawn_w",
+        f2: "pawn_w",
+        g2: "pawn_w",
+        h2: "pawn_w",
+        a7: "pawn_b",
+        b7: "pawn_b",
+        c7: "pawn_b",
+        d7: "pawn_b",
+        e7: "pawn_b",
+        f7: "pawn_b",
+        g7: "pawn_b",
+        h7: "pawn_b",
+        a8: "rook_b",
+        b8: "knight_b",
+        c8: "bishop_b",
+        d8: "queen_b",
+        e8: "king_b",
+        f8: "bishop_b",
+        g8: "knight_b",
+        h8: "rook_b",
+      };
     });
   }, []);
 
@@ -338,6 +402,7 @@ export const MovementProvider = ({ children, appRef }) => {
         dropPiece,
         boardState,
         moveHistory,
+        rewind,
       }}
     >
       {children}
