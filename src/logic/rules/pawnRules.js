@@ -57,6 +57,10 @@ export function pawnMove({
     ) {
       return true;
     } else if (this.isValidEnPassant()) {
+      //DEBUG
+      // console.log(boardState[`${currentFile}${currentRank - pawnDirection}`]);
+      //Removes the piece that En Passant is suppose to capture by hardcoding setting it to null
+      boardState[`${currentFile}${currentRank - pawnDirection}`] = null;
       return true;
     }
   }
@@ -193,26 +197,25 @@ export function validEnPassant({
   moveHistory,
 }) {
   // Debugging
-  console.log("Parameters");
-  console.log(`previousFile: ${previousFile}`);
-  console.log(`currentFile: ${currentFile}`);
-  console.log(`previousRank: ${previousRank}`);
-  console.log(`currentRank: ${currentRank}`);
-  console.log("boardState", boardState);
-  console.log(`teamColour: ${teamColour}`);
-  console.log("moveHistory", moveHistory);
+  // console.log("Parameters");
+  // console.log(`previousFile: ${previousFile}`);
+  // console.log(`currentFile: ${currentFile}`);
+  // console.log(`previousRank: ${previousRank}`);
+  // console.log(`currentRank: ${currentRank}`);
+  // console.log("boardState", boardState);
+  // console.log(`teamColour: ${teamColour}`);
+  // console.log("moveHistory", moveHistory);
 
-  const enemyColor = teamColour === "WHITE" ? "b" : "w";
   const pawnDirection = teamColour === "WHITE" ? 1 : -1;
   const lastMove = moveHistory[moveHistory.length - 1];
   if (!lastMove) return false;
 
-  const lastMovePiece = boardState[lastMove.piece];
-
   const lastMoveFrom = new ChessCoordinate(lastMove.from);
   const lastMoveTo = new ChessCoordinate(lastMove.to);
-  console.log("lastMovePiece:", lastMovePiece);
-  console.log("Enemy Colour:", enemyColor);
+  // console.log("Enemy Colour:", enemyColor);
+  // console.log("lastMoveFrom", lastMoveFrom);
+  // console.log("lastMoveTo", lastMoveTo);
+
   if (
     lastMoveTo.plus({ fileStep: 0, rankStep: 1 * pawnDirection }).coordinate ===
     `${currentFile}${currentRank}`

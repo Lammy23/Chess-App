@@ -7,7 +7,8 @@ const MovementContext = createContext(); // Creating the Movement Context
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
-
+// Im pretty sure this is bad practice but im not sure how else I can keep track of the player turns
+let currentTurn = "WHITE";
 // export const PieceType = { //List of Chess pieces used for determining the valid moves for referee
 //   KING: 'KING',
 //   QUEEN: 'QUEEN',
@@ -188,6 +189,7 @@ export const MovementProvider = ({ children, appRef }) => {
    */
   function dropPiece() {
     if (activePiece) {
+      let pickedUpPiece;
       // Checking if we're holding a piece
       const pieceType = boardState[activePieceOrigin]; // Accessing the hashmap to get the piece type
       const { leftBound, topBound } = getChessboardElements(); // Extracting only needed variables from function
@@ -224,7 +226,15 @@ export const MovementProvider = ({ children, appRef }) => {
 
         /* Referee will check if the piece it is trying to place down is being dropped in a valid position
         from its starting position */
-        if (referee.isMove()) {
+        if (pieceType !== undefined && pieceType !== null) {
+          if(pieceType.includes("_w")) {
+            pickedUpPiece = "WHITE";
+          } else if(pieceType.includes("_b")) {
+            pickedUpPiece = "BLACK";
+          } 
+        console.log(pickedUpPiece);
+        }
+        if (referee.isMove() && currentTurn === pickedUpPiece) {
           soundToPlay = "mariojump";
           if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
             console.log("check");
@@ -257,6 +267,14 @@ export const MovementProvider = ({ children, appRef }) => {
               piece: pieceType,
             },
           ]);
+
+          //Player turns
+          if (currentTurn === "WHITE") {
+            currentTurn = "BLACK";
+          } else if (currentTurn === "BLACK") {
+            currentTurn = "WHITE";
+          }
+          console.log(currentTurn);
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }
