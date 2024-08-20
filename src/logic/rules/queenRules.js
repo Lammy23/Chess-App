@@ -1,3 +1,6 @@
+import { allChessCoordinates } from "../../components/constants";
+import { ChessCoordinate } from "../Coordinates";
+
 export function queenMove({
   previousRank,
   currentRank,
@@ -89,4 +92,30 @@ export function queenMove({
   ) {
     return true;
   }
+}
+
+export function possibleQueenMoves({ futureBoardState, teamColour }) {
+  var color = teamColour === "WHITE" ? "w" : "b";
+
+  // 1. Get queen coordinates
+  let queenCoordinates = [];
+
+  for (let coordinate of allChessCoordinates) {
+    if (futureBoardState[coordinate] === `queen_${color}`) {
+      queenCoordinates.push(new ChessCoordinate(coordinate));
+    }
+  }
+
+  // 2. Calculate moves. Queen moves in eight directions
+  let moveList = [];
+  const moveMap = [];
+
+  queenCoordinates.forEach((cdn) => {
+    moveList.push(...this.getPossibleCrossMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleCrossMoves(cdn).moveMap);
+    moveList.push(...this.getPossibleDiagonalMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleDiagonalMoves(cdn).moveMap)
+  });
+
+  return { moveList: moveList, moveMap: moveMap };
 }

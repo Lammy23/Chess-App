@@ -1,5 +1,5 @@
 import { allChessCoordinates } from "../../components/constants";
-import { ChessCoordinates } from "../Coordinates";
+import { ChessCoordinate } from "../Coordinates";
 
 // #TODO: can prolly use private variable refContext instead of
 export function knightMove({
@@ -38,37 +38,63 @@ export function knightMove({
   }
 }
 
-export function PossibleKnightMoves({ futureBoardState, teamColour }) {
-  // Get current coordinates
-  // Calculate all possible cordinates according to knight rules
-  // add coordinates to list and return
-
-  var knightCoordinates = [];
+export function possibleKnightMoves({ futureBoardState, teamColour }) {
   var color = teamColour === "WHITE" ? "w" : "b";
+
+  // 1. Get knight coordinates
+  var knightCoordinates = [];
 
   for (let coordinate of allChessCoordinates) {
     if (futureBoardState[coordinate] === `knight_${color}`) {
-      knightCoordinates.push(coordinate);
+      knightCoordinates.push(new ChessCoordinate(coordinate));
     }
   }
 
-  const moves = [];
+  // 2. Calculate knight moves.
+  let moveList = [];
+  const moveMap = [];
 
-  knightCoordinates = knightCoordinates.map((coordinate) => {
-    return new ChessCoordinates(coordinate);
-  });
-
-  // eaargghh
+  // possible knight moves
   let x = [2, 2, -2, -2];
   let y = [-1, 1, -1, 1];
 
+  /**
+   *
+   * @param {ChessCoordinate} coordinate
+   */
   const f = (coordinate) => {
-    for (let i = 0; i < x.length; i++) {
-      let a = coordinate.plusVal({ fileStep: x[i], rankStep: y[i] });
-      let b = coordinate.plusVal({ rankStep: x[i], fileStep: y[i] });
+    let origin = coordinate.coordinate;
 
-      if (a && !this.tileIsOccupiedByOwn(a, futureBoardState)) moves.push(a);
-      if (b && !this.tileIsOccupiedByOwn(b, futureBoardState)) moves.push(b);
+    for (let i = 0; i < x.length; i++) {
+      coordinate.plus({ fileStep: x[i], rankStep: y[i] });
+      if (coordinate.coordinate !== origin) {
+        if (
+          !coordinate.isOccupied({ futureBoardState }) ||
+          coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+        ) {
+          moveList.push(coordinate.coordinate);
+          moveMap.push({
+            from: origin,
+            to: coordinate.coordinate,
+          });        }
+      }
+
+      coordinate.setCoordinate(origin);
+
+      coordinate.plus({ rankStep: x[i], fileStep: y[i] });
+      if (coordinate.coordinate !== origin) {
+        if (
+          !coordinate.isOccupied({ futureBoardState }) ||
+          coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+        ) {
+          moveList.push(coordinate.coordinate);
+          moveMap.push({
+            from: origin,
+            to: coordinate.coordinate,
+          });        }
+      }
+
+      coordinate.setCoordinate(origin);
     }
   };
 
@@ -76,5 +102,5 @@ export function PossibleKnightMoves({ futureBoardState, teamColour }) {
     f(coordinate);
   });
 
-  return moves;
+  return { moveList: moveList, moveMap: moveMap };
 }

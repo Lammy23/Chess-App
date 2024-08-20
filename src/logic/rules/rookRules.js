@@ -1,3 +1,6 @@
+import { allChessCoordinates } from "../../components/constants";
+import { ChessCoordinate } from "../Coordinates";
+
 export function rookMove({
   previousRank,
   currentRank,
@@ -55,4 +58,28 @@ export function rookMove({
   ) {
     return true;
   }
+}
+
+export function possibleRookMoves({ futureBoardState, teamColour }) {
+  var color = teamColour === "WHITE" ? "w" : "b";
+
+  // 1. Get rook coordinates
+  let rookCoordinates = [];
+
+  for (let coordinate of allChessCoordinates) {
+    if (futureBoardState[coordinate] === `rook_${color}`) {
+      rookCoordinates.push(new ChessCoordinate(coordinate));
+    }
+  }
+
+  // 2. Calculate moves. Rook moves in four directions
+  let moveList = [];
+  const moveMap = [];
+
+  rookCoordinates.forEach((cdn) => {
+    moveList.push(...this.getPossibleCrossMoves(cdn).moveList);
+    moveMap.push(...this.getPossibleCrossMoves(cdn).moveMap);
+  });
+
+  return { moveList: moveList, moveMap: moveMap };
 }

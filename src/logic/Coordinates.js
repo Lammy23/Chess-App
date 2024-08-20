@@ -1,10 +1,11 @@
 import { numToFile } from "../components/constants";
 
-export class ChessCoordinates {
-  // fields
+export class ChessCoordinate {
+  // public fields
+
   file; // number
   rank; // number
-  coordinate;
+  coordinate; // string
 
   constructor(coordinate) {
     if (this.#isValidCoordinate(coordinate[0], coordinate[1])) {
@@ -30,6 +31,14 @@ export class ChessCoordinates {
 
   // public methods
 
+  setCoordinate(coordinate) {
+    if (this.#isValidCoordinate(coordinate[0], coordinate[1])) {
+      this.file = this.#fileConvert(coordinate[0]);
+      this.rank = this.#rankConvert(coordinate[1]);
+      this.coordinate = `${numToFile[this.file]}${this.rank}`;
+    }
+  }
+
   plus({ fileStep, rankStep }) {
     let newRank = this.rank + this.#rankConvert(rankStep);
     let newFile = this.file + this.#fileConvert(fileStep);
@@ -37,19 +46,43 @@ export class ChessCoordinates {
     if (this.#isValidCoordinate(newFile, newRank)) {
       this.rank = newRank;
       this.file = newFile;
+      this.coordinate = `${numToFile[newFile]}${newRank}`;
     }
+
+    return this
   }
 
-  plusVal({ fileStep, rankStep }) {
-    let newRank = this.rank + this.#rankConvert(rankStep);
-    let newFile = this.file + this.#fileConvert(fileStep);
+  isOccupied({ futureBoardState }) {
+    return !!futureBoardState[this.coordinate];
+  }
 
-    if (this.#isValidCoordinate(newFile, newRank))
-      return `${numToFile[newFile]}${newRank}`;
-    return null;
+  isOccupiedByOpponent({ futureBoardState, teamColour }) {
+    const piece = futureBoardState[this.coordinate];
+    const pieceColor = piece ? piece.slice(-1) : null;
+    const enemyColor = teamColour.toLowerCase() === "white" ? "b" : "w";
+
+    if (piece && pieceColor === enemyColor) {
+      return true;
+    }
+    return false;
+  }
+
+  isFileEdge() {
+    return this.file === 8 || this.file === 1;
+  }
+
+  isRankEdge() {
+    return this.rank === 8 || this.rank === 1;
+  }
+
+  isEdge() {
+    return (
+      this.rank === 8 || this.rank === 1 || this.file === 8 || this.file === 1
+    );
   }
 
   print() {
-    console.log(`Coordinate: ${numToFile[this.file]}${this.rank}`);
+    // For debugging
+    console.log(`Coordinate: ${this.coordinate}`);
   }
 }
