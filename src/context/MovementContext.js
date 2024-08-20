@@ -109,11 +109,22 @@ export const MovementProvider = ({ children, appRef }) => {
     else return null;
   }
 
-  function rewind(e) {
+  function undo() {
     console.log("rewinding");
-    console.log(boardHistory)
     if (moveCount === 0) return false;
     const newCount = moveCount - 1;
+    setMoveCount(newCount);
+    console.log(boardHistory[newCount]);
+    setBoardState(boardHistory[newCount]);
+
+    // reflect turns
+    currentTurn = currentTurn === "WHITE" ? "BLACK" : "WHITE";
+  }
+
+  function redo() {
+    console.log("redoing");
+    if (moveCount === boardHistory.length - 1) return false;
+    const newCount = moveCount + 1;
     setMoveCount(newCount);
     console.log(boardHistory[newCount]);
     setBoardState(boardHistory[newCount]);
@@ -402,7 +413,8 @@ export const MovementProvider = ({ children, appRef }) => {
         dropPiece,
         boardState,
         moveHistory,
-        rewind,
+        undo,
+        redo,
       }}
     >
       {children}
