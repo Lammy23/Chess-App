@@ -222,6 +222,7 @@ export function validEnPassant({
       lastMoveFrom.plus({ rankStep: -2 * pawnDirection, fileStep: 0 })
         .coordinate === lastMoveTo.coordinate
     ) {
+      console.log(boardState[lastMove.piece]);
       return true;
     }
   }
