@@ -16,13 +16,14 @@ function ChessBoard() {
 
   // Need to fix this since moveHistory is not used here. Is there a way to use it here or take it out
   // without it affecting movement context?
-  const { movePiece, dropPiece, boardState, rewind } = useMovementContext(); // Using variables and functions from the MovementContext (Logic)
+  const { movePiece, dropPiece, boardState, redo, undo } = useMovementContext(); // Using variables and functions from the MovementContext (Logic)
 
   useEffect(() => {
     const handleRewind = (e) => {
       if (e.key === "ArrowLeft") {
-        rewind(e);
+        undo(e);
       } else if (e.key === "ArrowRight") {
+        redo(e);
         // to be coded
       }
     };
@@ -30,8 +31,7 @@ function ChessBoard() {
     return () => {
       window.removeEventListener("keydown", handleRewind);
     };
-  }, [rewind]);
-
+  }, [undo, redo]);
   if (boardState)
     // Checking if the starting position of the pieces (hashmap) has been assigned yet by MovementContext
     return (
