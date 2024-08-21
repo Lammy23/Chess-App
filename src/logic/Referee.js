@@ -481,3 +481,6 @@ export default class Referee {
     return numberMapping[number] || null;
   }
 }
+
+export const numberToFile = Referee.prototype.numberToFile;
+

@@ -1,5 +1,6 @@
 import { allChessCoordinates, numToFile } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
+import { numberToFile } from "../Referee";
 
 export function kingMove({
   previousRank,
@@ -11,6 +12,8 @@ export function kingMove({
   boardState,
   teamColour,
 }) {
+  console.log(currentFileNumber - previousFileNumber);
+  console.log(currentRank);
   //SUGGESTION: This code is very iffy lol, refactor afterwards
   if (     // Diagonal Movement
     Math.abs(currentFileNumber - previousFileNumber) === 1 &&
@@ -26,16 +29,33 @@ export function kingMove({
   ) { 
   } else if( // King side Castling
     currentFileNumber - previousFileNumber === 2 && 
-    currentRank === 7 // need to change to make it work for both black and white
-  ) { 
-    boardState[`${numToFile(currentFileNumber + 1)}${currentRank}`] = boardState[`${numToFile(currentFileNumber - 2)}${currentRank}`]
+    currentRank === 8 && 
+    !this.tileIsOccupied(numberToFile(currentFileNumber + 1), currentRank, boardState) &&
+    !this.tileIsOccupied(numberToFile(currentFileNumber + 2), currentRank, boardState) 
+    // need to change to make it work for both black and white
+  ) {
+    // Moving King and clearing its position 
+    boardState[`${numberToFile(currentFileNumber)}${currentRank}`] = boardState[`${numberToFile(previousFileNumber)}${currentRank}`];
+    delete boardState[`${numberToFile(previousFileNumber)}${currentRank}`];
+    // Moving Rook and clearing its position
+    boardState[`${numberToFile(currentFileNumber - 1)}${currentRank}`] = boardState[`${numberToFile(currentFileNumber + 1)}${currentRank}`];
+    delete boardState[`${numberToFile(currentFileNumber + 1)}${currentRank}`];
+    // console.log(boardState[`${numberToFile(currentFileNumber + 1)}${currentRank}`]);
   } else if( // Queen side Castling
     currentFileNumber - previousFileNumber === -2 &&
-    currentRank === 7
+    currentRank === 8 && 
+    !this.tileIsOccupied(numberToFile(currentFileNumber + 1), currentRank, boardState) &&
+    !this.tileIsOccupied(numberToFile(currentFileNumber - 1), currentRank, boardState) &&
+    !this.tileIsOccupied(currentFile, currentRank, boardState) 
   ) { 
+    // Moving King and clearing its position 
+    boardState[`${numberToFile(currentFileNumber)}${currentRank}`] = boardState[`${numberToFile(previousFileNumber)}${currentRank}`];
+    delete boardState[`${numberToFile(previousFileNumber)}${currentRank}`];
+    // Moving Rook and clearing its position
+    boardState[`${numberToFile(currentFileNumber + 1)}${currentRank}`] = boardState[`${numberToFile(currentFileNumber - 2)}${currentRank}`];
+    delete boardState[`${numberToFile(currentFileNumber - 2)}${currentRank}`];
   } else {
     return false;
-
   }
   // If it is occupied, then it must be either the same or opposing colour
   if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
