@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, numToFile } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function kingMove({
@@ -11,23 +11,31 @@ export function kingMove({
   boardState,
   teamColour,
 }) {
-  if (
+  //SUGGESTION: This code is very iffy lol, refactor afterwards
+  if (     // Diagonal Movement
     Math.abs(currentFileNumber - previousFileNumber) === 1 &&
     Math.abs(currentRank - previousRank) === 1
   ) {
-    // Diagonal Movement
-  } else if (
+  } else if (     // Vertical Movement
     Math.abs(currentRank - previousRank) === 1 &&
     previousFile === currentFile
   ) {
-    // Vertical Movement
-  } else if (
+  } else if (     // Horizontal Movement
     Math.abs(currentFileNumber - previousFileNumber) === 1 &&
     previousRank === currentRank
-  ) {
-    // Horizontal Movement
+  ) { 
+  } else if( // King side Castling
+    currentFileNumber - previousFileNumber === 2 && 
+    currentRank === 7 // need to change to make it work for both black and white
+  ) { 
+    boardState[`${numToFile(currentFileNumber + 1)}${currentRank}`] = boardState[`${numToFile(currentFileNumber - 2)}${currentRank}`]
+  } else if( // Queen side Castling
+    currentFileNumber - previousFileNumber === -2 &&
+    currentRank === 7
+  ) { 
   } else {
     return false;
+
   }
   // If it is occupied, then it must be either the same or opposing colour
   if (!this.tileIsOccupied(currentFile, currentRank, boardState)) {
@@ -98,4 +106,8 @@ export function possibleKingMoves({ futureBoardState, teamColour }) {
   }
 
   return { moveList: moveList, moveMap: moveMap };
+}
+
+export function castling() {
+  
 }
