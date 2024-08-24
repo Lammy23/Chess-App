@@ -1,4 +1,5 @@
-import { allChessCoordinates, deepEqual } from "../components/constants";
+import { allChessCoordinates, Color, deepEqual } from "../components/constants";
+import { ChessCoordinate } from "./Coordinates";
 import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
 import { kingMove, possibleKingMoves } from "./rules/kingRules";
 import { possibleKnightMoves, knightMove } from "./rules/knightRules";
@@ -17,7 +18,7 @@ export default class Referee {
 
   #getEnemyKingCoordinates(teamColour) {
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = ourColor === "WHITE" ? "b" : "w";
+    const enemyColor = Color.getLetter(Color.toggleColor(ourColor))
     for (let coordinate of allChessCoordinates) {
       if (
         this.#refContext.futureBoardState[coordinate] === `king_${enemyColor}`
@@ -132,10 +133,9 @@ export default class Referee {
         });
         coordinate.plus({ fileStep: x[i], rankStep: y[i] });
       } while (
-        !(coordinate.isOccupied({ futureBoardState }) || coordinate.isEdge())
+        !(coordinate.isOccupied(futureBoardState) || coordinate.isEdge())
       );
-
-      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+      if (coordinate.isOccupiedByOpponent(futureBoardState, teamColour)) {
         moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -364,7 +364,7 @@ export default class Referee {
 
   isUnderCheck(teamColour) {
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = ourColor === "WHITE" ? "BLACK" : "WHITE";
+    const enemyColor = Color.toggleColor(ourColor);
     // Confirm enemy is checking our king
     return this.isCheckingOpponent(enemyColor);
   }
@@ -373,7 +373,7 @@ export default class Referee {
     var isCheckmated = true;
     // For all of our possible moves if made, see if we're still under check.
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = ourColor === "WHITE" ? "BLACK" : "WHITE";
+    const enemyColor = Color.toggleColor(ourColor);
     const moves = this.getPossibleMoves(enemyColor);
 
     const originalBoard = { ...this.#refContext.futureBoardState };
@@ -404,25 +404,6 @@ export default class Referee {
   }
 
   /**
-   *  Determines if en passant is a valid move based on the coordinates, piece type and the board state
-   * @param {string} tileX
-   * @param {number} tileY
-   * @param {object} boardState
-   * @param {string} TeamType
-   * @returns {boolean} true if the move is valid, false otherwise
-   */
-  //Determining if the move from a pawn can use En Passant
-  // validEnPassant(tileX, tileY, boardState, TeamType) {
-  //   const tileKey = `${tileX}${tileY}`;
-  //   const attackableOpposingPawn = TeamType === "WHITE" ? "pawn_b" : "pawn_w";
-  //   if (boardState[tileKey] === attackableOpposingPawn) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
-  //Extracting the Rank from the coordinate given
-  /**
    * Extracts the rank from the coordinate given
    * @param {string} coordinate
    * @returns {number | null} the rank of the coordinate or null if no match is found
@@ -442,10 +423,10 @@ export default class Referee {
 
   //Extracts the team colour based on the piece given
   extractTeamColour(pieceType) {
-    if (pieceType.includes("_w")) {
-      return "WHITE";
-    } else if (pieceType.includes("_b")) {
-      return "BLACK";
+    if (pieceType.slice(-1) === "w") {
+      return Color.white;
+    } else if (pieceType.slice(-1) === "b") {
+      return Color.black;
     }
     //Returns null if some piece does not follow the naming convention
     return null;

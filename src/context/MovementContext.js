@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import { files, ranks } from "../components/constants";
+import { Color, files, ranks } from "../components/constants";
 import Referee from "../logic/Referee.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
@@ -8,7 +8,7 @@ const MovementContext = createContext(); // Creating the Movement Context
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
 // Im pretty sure this is bad practice but im not sure how else I can keep track of the player turns
-let currentTurn = "WHITE";
+let currentTurn = Color.white;
 // export const PieceType = { //List of Chess pieces used for determining the valid moves for referee
 //   KING: 'KING',
 //   QUEEN: 'QUEEN',
@@ -17,11 +17,6 @@ let currentTurn = "WHITE";
 //   ROOK: 'ROOK',
 //   PAWN: 'PAWN'
 // };
-
-// export const TeamType = {
-//   WHITE: 'WHITE',
-//   BLACK: 'BLACK',
-// }
 
 export const MovementProvider = ({ children, appRef }) => {
   const [boardState, setBoardState] =
@@ -118,7 +113,7 @@ export const MovementProvider = ({ children, appRef }) => {
     setBoardState(boardHistory[newCount]);
 
     // reflect turns
-    currentTurn = currentTurn === "WHITE" ? "BLACK" : "WHITE";
+    currentTurn = Color.toggleColor(currentTurn);
   }
 
   function redo() {
@@ -130,7 +125,7 @@ export const MovementProvider = ({ children, appRef }) => {
     setBoardState(boardHistory[newCount]);
 
     // reflect turns
-    currentTurn = currentTurn === "WHITE" ? "BLACK" : "WHITE";
+    currentTurn = Color.toggleColor(currentTurn);
   }
 
   /**
@@ -254,9 +249,9 @@ export const MovementProvider = ({ children, appRef }) => {
         from its starting position */
         if (pieceType !== undefined && pieceType !== null) {
           if (pieceType.includes("_w")) {
-            pickedUpPiece = "WHITE";
+            pickedUpPiece = Color.white;
           } else if (pieceType.includes("_b")) {
-            pickedUpPiece = "BLACK";
+            pickedUpPiece = Color.black;
           }
         }
         if (referee.isMove() && currentTurn === pickedUpPiece) {
@@ -303,11 +298,7 @@ export const MovementProvider = ({ children, appRef }) => {
           ]);
 
           //Player turns
-          if (currentTurn === "WHITE") {
-            currentTurn = "BLACK";
-          } else if (currentTurn === "BLACK") {
-            currentTurn = "WHITE";
-          }
+          currentTurn = Color.toggleColor(currentTurn)
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }

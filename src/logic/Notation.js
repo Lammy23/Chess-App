@@ -7,7 +7,20 @@ export class PieceNotation {
   from; // ChessCoordinates
   to; // ChessCoordinates
   #piecePosition; // hashmap (private)
-  #notation; // String (private)
+
+  // Notation parts (private)
+  #piecePart = "";
+  #filePart = "";
+  #takesPart = "";
+  #checkPart = "";
+  #checkmatePart = "";
+  #fullNotation = "";
+
+  // Castles
+  #isCastleQueenSide;
+  #isCastleKingSide;
+
+
 
   /**
    * Constructor
@@ -20,7 +33,7 @@ export class PieceNotation {
     this.from = from;
     this.to = to;
     this.#piecePosition = piecePosition;
-    this.#notation = this.#calculateNotation();
+    this.#fullNotation = this.#calculateNotation();
   }
 
   // Private Methods
@@ -31,7 +44,7 @@ export class PieceNotation {
         // If on the same file
         return this.to.coordinate;
       } else if (this.#piecePosition[this.to.coordinate]) {
-        return `${this.from.file}x${this.to.coordinate}`;
+        return `${this.from.coordinate[0]}x${this.to.coordinate}`;
       }
     } else {
       console.log("To be coded...");
@@ -39,7 +52,7 @@ export class PieceNotation {
   }
 
   // Public Methods
-  getNotation() {
-    return this.#notation;
+  getFullNotation() {
+    return this.#fullNotation;
   }
 }

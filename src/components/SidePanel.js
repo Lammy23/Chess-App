@@ -17,7 +17,6 @@ function SidePanel() {
         moveList[0] &&
         currentMoveSet <= moveList[moveList.length - 1].moveSetNumber
       ) {
-        console.log(currentMoveSet);
         setMoveList((prev) => {
           const working = prev[currentMoveSet - 1];
           working.blackMove = new PieceNotation(
@@ -25,11 +24,10 @@ function SidePanel() {
             new ChessCoordinate(latest.from),
             new ChessCoordinate(latest.to),
             boardState
-          ).getNotation();
+          ).getFullNotation();
           return [...prev];
         });
       } else {
-        console.log(currentMoveSet);
         setMoveList((prev) => {
           prev[currentMoveSet - 1] = {
             moveSetNumber: currentMoveSet,
@@ -38,19 +36,20 @@ function SidePanel() {
               new ChessCoordinate(latest.from),
               new ChessCoordinate(latest.to),
               boardState
-            ).getNotation(),
+            ).getFullNotation(),
           };
           return [...prev];
         });
       }
     }
-  }, [moveHistory, moveCount]);
+  }, [moveHistory, moveCount, boardState]);
 
   return (
     <div id="side-panel" className="background">
       {moveList.map(({ moveSetNumber, whiteMove, blackMove }) => {
         return (
           <MoveStrip
+            key={moveSetNumber}
             moveSetNumber={moveSetNumber}
             whiteMove={whiteMove}
             blackMove={blackMove}

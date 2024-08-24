@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, Color } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function kingMove({
@@ -45,7 +45,7 @@ export function kingMove({
 }
 
 export function possibleKingMoves({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
+  var color = Color.getLetter(teamColour)
 
   // 1. Get king coordinates
   var kingCoordinates = [];
@@ -78,8 +78,8 @@ export function possibleKingMoves({ futureBoardState, teamColour }) {
           origin
         ) {
           if (
-            !coordinate.isOccupied({ futureBoardState }) ||
-            coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+            !coordinate.isOccupied(futureBoardState) ||
+            coordinate.isOccupiedByOpponent(futureBoardState, teamColour)
           ) {
             moveList.push(coordinate.coordinate);
             moveMap.push({

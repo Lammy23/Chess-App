@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, Color } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 // #TODO: can prolly use private variable refContext instead of
@@ -39,7 +39,7 @@ export function knightMove({
 }
 
 export function possibleKnightMoves({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
+  var color = Color.getLetter(teamColour);
 
   // 1. Get knight coordinates
   var knightCoordinates = [];
@@ -69,8 +69,8 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
       coordinate.plus({ fileStep: x[i], rankStep: y[i] });
       if (coordinate.coordinate !== origin) {
         if (
-          !coordinate.isOccupied({ futureBoardState }) ||
-          coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+          !coordinate.isOccupied(futureBoardState) ||
+          coordinate.isOccupiedByOpponent(futureBoardState, teamColour)
         ) {
           moveList.push(coordinate.coordinate);
           moveMap.push({
@@ -84,8 +84,8 @@ export function possibleKnightMoves({ futureBoardState, teamColour }) {
       coordinate.plus({ rankStep: x[i], fileStep: y[i] });
       if (coordinate.coordinate !== origin) {
         if (
-          !coordinate.isOccupied({ futureBoardState }) ||
-          coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+          !coordinate.isOccupied(futureBoardState) ||
+          coordinate.isOccupiedByOpponent(futureBoardState, teamColour)
         ) {
           moveList.push(coordinate.coordinate);
           moveMap.push({

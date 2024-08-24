@@ -1,4 +1,4 @@
-import { numToFile } from "../components/constants";
+import { Color, numToFile } from "../components/constants";
 
 export class ChessCoordinate {
   // public fields
@@ -40,7 +40,7 @@ export class ChessCoordinate {
   }
 
   /**
-   * Calculates the target coordinate
+   * Calculates and returns the target coordinate
    * @param {*} param0
    * @returns
    */
@@ -68,16 +68,16 @@ export class ChessCoordinate {
     return { fileStep: fileStep, rankStep: rankStep };
   }
 
-  isOccupied({ futureBoardState }) {
-    return !!futureBoardState[this.coordinate];
+  isOccupied(boardState) {
+    return !!boardState[this.coordinate];
   }
 
-  isOccupiedByOpponent({ futureBoardState, teamColour }) {
-    const piece = futureBoardState[this.coordinate];
-    const pieceColor = piece ? piece.slice(-1) : null;
-    const enemyColor = teamColour.toLowerCase() === "white" ? "b" : "w";
+  isOccupiedByOpponent(boardState, teamColor) {
+    const piece = boardState[this.coordinate];
+    const enemyColorv1 = piece ? piece.slice(-1) : null;
+    const enemyColorv2 = Color.getLetter(Color.toggleColor(teamColor))
 
-    if (piece && pieceColor === enemyColor) {
+    if (piece && enemyColorv1 === enemyColorv2) {
       return true;
     }
     return false;
