@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { Color, files, ranks } from "../components/constants";
 import Referee from "../logic/Referee.js";
+import { ChessPiece } from "../logic/Piece.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
 
@@ -31,6 +32,10 @@ export const MovementProvider = ({ children, appRef }) => {
   const [boardHistory, setBoardHistory] = useState([]);
   const [moveCount, setMoveCount] = useState(0);
   const referee = new Referee(); //Instance of referee to check the movement of pieces
+
+  const [lastMoveWasCapture, setLastMoveWasCapture] = useState(false);
+  const [lastMoveWasCheck, setLastMoveWasCheck] = useState(false);
+  const [lastMoveWasCheckmate, setLastMoveWasCheckmate] = useState(false);
 
   const playSound = (sound) => {
     const audio = new Audio(`assets/sounds/${sound}.mp3`);
@@ -256,13 +261,25 @@ export const MovementProvider = ({ children, appRef }) => {
         }
         if (referee.isMove() && currentTurn === pickedUpPiece) {
           soundToPlay = "mariojump";
+          if (boardState[currentCoordinates]) {
+            setLastMoveWasCapture(true);
+            console.log("capture");
+          } else {
+            setLastMoveWasCapture(false);
+            console.log("no capture");
+          }
           if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
+            setLastMoveWasCheck(true);
             console.log("check");
             soundToPlay = "getout";
             if (referee.isCheckmatingOpponent()) {
+              setLastMoveWasCheckmate(true);
               console.log("checkmate");
               soundToPlay = "englishorspanish";
             }
+          } else {
+            setLastMoveWasCheck(false);
+            console.log("no check");
           }
 
           playSound(soundToPlay);
@@ -293,12 +310,12 @@ export const MovementProvider = ({ children, appRef }) => {
             {
               from: activePieceOrigin,
               to: currentCoordinates,
-              piece: pieceType,
+              piece: ChessPiece.getPiece(pieceType),
             },
           ]);
 
           //Player turns
-          currentTurn = Color.toggleColor(currentTurn)
+          currentTurn = Color.toggleColor(currentTurn);
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }
@@ -402,9 +419,13 @@ export const MovementProvider = ({ children, appRef }) => {
         dropPiece,
         moveCount,
         boardState,
+        boardHistory,
         moveHistory,
         undo,
         redo,
+        lastMoveWasCapture,
+        lastMoveWasCheck,
+        lastMoveWasCheckmate,
       }}
     >
       {children}

@@ -7,7 +7,14 @@ import { ChessCoordinate } from "../logic/Coordinates";
 
 function SidePanel() {
   const [moveList, setMoveList] = useState([]);
-  const { moveHistory, moveCount, boardState } = useMovementContext();
+  const {
+    moveHistory,
+    moveCount,
+    boardHistory,
+    lastMoveWasCapture,
+    lastMoveWasCheck,
+    lastMoveWasCheckmate,
+  } = useMovementContext();
 
   useEffect(() => {
     const latest = moveHistory[moveCount - 1];
@@ -23,8 +30,10 @@ function SidePanel() {
             latest.piece,
             new ChessCoordinate(latest.from),
             new ChessCoordinate(latest.to),
-            boardState
-          ).getFullNotation();
+            lastMoveWasCapture,
+            lastMoveWasCheck,
+            lastMoveWasCheckmate
+          ).fullNotation;
           return [...prev];
         });
       } else {
@@ -35,14 +44,16 @@ function SidePanel() {
               latest.piece,
               new ChessCoordinate(latest.from),
               new ChessCoordinate(latest.to),
-              boardState
-            ).getFullNotation(),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).fullNotation,
           };
           return [...prev];
         });
       }
     }
-  }, [moveHistory, moveCount, boardState]);
+  }, [moveHistory, moveCount, boardHistory]);
 
   return (
     <div id="side-panel" className="background">

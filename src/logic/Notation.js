@@ -1,4 +1,5 @@
 import { ChessCoordinate } from "./Coordinates";
+import { ChessPiece } from "./Piece";
 
 export class PieceNotation {
   // Fields
@@ -6,21 +7,31 @@ export class PieceNotation {
   piece; // String
   from; // ChessCoordinates
   to; // ChessCoordinates
-  #piecePosition; // hashmap (private)
 
   // Notation parts (private)
   #piecePart = "";
   #filePart = "";
   #takesPart = "";
+  #coordinatePart = "";
   #checkPart = "";
   #checkmatePart = "";
-  #fullNotation = "";
+
+  fullNotation = "";
 
   // Castles
   #isCastleQueenSide;
   #isCastleKingSide;
 
+  // Booleans
+  #isCapture;
+  #isCheck;
+  #isCheckmate;
 
+  // Piece map
+  pieceMap = {
+    // TODO: add more
+    pawn: this.#pawnNotation,
+  };
 
   /**
    * Constructor
@@ -28,31 +39,46 @@ export class PieceNotation {
    * @param {ChessCoordinate} from
    * @param {ChessCoordinate} to
    */
-  constructor(piece, from, to, piecePosition) {
+  constructor(piece, from, to, isCapture, isCheck, isCheckmate) {
     this.piece = piece;
     this.from = from;
     this.to = to;
-    this.#piecePosition = piecePosition;
-    this.#fullNotation = this.#calculateNotation();
+    this.#isCapture = isCapture;
+    this.#isCheck = isCheck;
+    this.#isCheckmate = isCheckmate;
+
+    this.#takesPart = this.#isCapture ? "x" : "";
+    if (this.#isCheck) {
+      this.#checkPart = "+";
+    } else if (this.#isCheckmate) {
+      this.#checkmatePart = "#";
+    }
+    this.#calculateNotation();
   }
 
   // Private Methods
-  #calculateNotation() {
-    if (this.piece.slice(0, 4) === "pawn") {
-      // PAWN
-      if (this.from.minus(this.to).fileStep === 0) {
-        // If on the same file
-        return this.to.coordinate;
-      } else if (this.#piecePosition[this.to.coordinate]) {
-        return `${this.from.coordinate[0]}x${this.to.coordinate}`;
-      }
+  #pawnNotation() {
+    // PAWN
+    if (!this.#isCapture) {
+      // If on the same file
+      this.#coordinatePart = this.to.coordinate;
     } else {
-      console.log("To be coded...");
+      // If on different files
+      this.#filePart = this.from.coordinate[0];
+      this.#coordinatePart = this.to.coordinate;
+      // return `${this.from.coordinate[0]}x${this.to.coordinate}`;
     }
   }
 
-  // Public Methods
-  getFullNotation() {
-    return this.#fullNotation;
+  #calculateNotation() {
+    if (this.piece === ChessPiece.pawn) this.#pawnNotation();
+
+    this.fullNotation =
+      this.#piecePart +
+      this.#filePart +
+      this.#takesPart +
+      this.#coordinatePart +
+      this.#checkPart +
+      this.#checkmatePart;
   }
 }
