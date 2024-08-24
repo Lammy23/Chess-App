@@ -18,7 +18,7 @@ export default class Referee {
 
   #getEnemyKingCoordinates(teamColour) {
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = Color.getLetter(Color.toggleColor(ourColor))
+    const enemyColor = Color.getLetter(Color.toggleColor(ourColor));
     for (let coordinate of allChessCoordinates) {
       if (
         this.#refContext.futureBoardState[coordinate] === `king_${enemyColor}`
@@ -151,7 +151,6 @@ export default class Referee {
 
   getPossibleCrossMoves(coordinate) {
     // Assuming coordinate is of type ChessCoordinate
-
     let futureBoardState = this.#refContext.futureBoardState;
     let teamColour = this.#refContext.teamColour;
 
@@ -172,10 +171,10 @@ export default class Referee {
         coordinate.plus({ fileStep: x[i], rankStep: 0 });
       } while (
         !(
-          coordinate.isOccupied({ futureBoardState }) || coordinate.isFileEdge()
+          coordinate.isOccupied(futureBoardState) || coordinate.isFileEdge()
         )
       );
-      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+      if (coordinate.isOccupiedByOpponent(futureBoardState, teamColour)) {
         moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -195,10 +194,10 @@ export default class Referee {
         coordinate.plus({ fileStep: 0, rankStep: x[i] });
       } while (
         !(
-          coordinate.isOccupied({ futureBoardState }) || coordinate.isRankEdge()
+          coordinate.isOccupied(futureBoardState) || coordinate.isRankEdge()
         )
       );
-      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+      if (coordinate.isOccupiedByOpponent(futureBoardState, teamColour)) {
         moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -338,12 +337,12 @@ export default class Referee {
 
   getPossibleCaptures(teamColour) {
     const moves = [];
-    // moves.push(...this.getPossibleKnightMove(teamColour).moveList);
-    // moves.push(...this.getPossibleBishopMoves(teamColour).moveList);
-    // moves.push(...this.getPossibleRookMoves(teamColour).moveList);
+    moves.push(...this.getPossibleKnightMove(teamColour).moveList);
+    moves.push(...this.getPossibleBishopMoves(teamColour).moveList);
+    moves.push(...this.getPossibleRookMoves(teamColour).moveList);
     moves.push(...this.getPossibleQueenMoves(teamColour).moveList);
-    // moves.push(...this.getPossibleKingMoves(teamColour).moveList);
-    // moves.push(...this.getPossiblePawnCaptures(teamColour).moveList);
+    moves.push(...this.getPossibleKingMoves(teamColour).moveList);
+    moves.push(...this.getPossiblePawnCaptures(teamColour).moveList);
     return moves;
   }
 
