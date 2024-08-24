@@ -1,5 +1,7 @@
 import { ChessCoordinate } from "./Coordinates";
 import { ChessPiece } from "./Piece";
+import { Knight } from "./pieces/Knight";
+import { Color } from "../components/constants";
 
 export class PieceNotation {
   // Fields
@@ -7,6 +9,7 @@ export class PieceNotation {
   piece; // String
   from; // ChessCoordinates
   to; // ChessCoordinates
+  #boardState;
 
   // Notation parts (private)
   #piecePart = "";
@@ -39,13 +42,14 @@ export class PieceNotation {
    * @param {ChessCoordinate} from
    * @param {ChessCoordinate} to
    */
-  constructor(piece, from, to, isCapture, isCheck, isCheckmate) {
+  constructor(piece, from, to, isCapture, isCheck, isCheckmate, boardState) {
     this.piece = piece;
     this.from = from;
     this.to = to;
     this.#isCapture = isCapture;
     this.#isCheck = isCheck;
     this.#isCheckmate = isCheckmate;
+    this.#boardState = boardState;
 
     this.#takesPart = this.#isCapture ? "x" : "";
     if (this.#isCheck) {
@@ -66,8 +70,15 @@ export class PieceNotation {
       // If on different files
       this.#filePart = this.from.coordinate[0];
       this.#coordinatePart = this.to.coordinate;
-      // return `${this.from.coordinate[0]}x${this.to.coordinate}`;
     }
+  }
+
+  #knightNotation() {
+    // KNIGHT
+    this.#piecePart = "N";
+    // lol if it was a capture (or check) which knight did it? (for file part)
+    const knight = new Knight(Color.white, this.#boardState);
+    knight.getPossibleMovesFrom(this.to)
   }
 
   #calculateNotation() {
