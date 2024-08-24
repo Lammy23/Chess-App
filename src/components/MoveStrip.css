@@ -1,0 +1,7 @@
+#move-strip {
+  display: grid;
+  grid-template-columns: 45px 90px 90px;
+  font-size: small;
+  font-weight: bold;
+  padding: 7px;
+}

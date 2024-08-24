@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import ChessTile from "../components/ChessTile";
 import "./ChessBoard.css";
 import { useMovementContext } from "../context/MovementContext";
+import SidePanel from "./SidePanel";
 
 function ChessBoard() {
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -55,6 +56,7 @@ function ChessBoard() {
             ); // Added a unique key prop to prevent a warning
           })}
         </div>
+        <SidePanel />
       </div>
     );
 }

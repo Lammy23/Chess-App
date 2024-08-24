@@ -271,8 +271,6 @@ export const MovementProvider = ({ children, appRef }) => {
           }
 
           playSound(soundToPlay);
-          console.log(boardHistory);
-          console.log(moveCount);
 
           const newCount = moveCount + 1;
 
@@ -411,6 +409,7 @@ export const MovementProvider = ({ children, appRef }) => {
         grabPiece,
         movePiece,
         dropPiece,
+        moveCount,
         boardState,
         moveHistory,
         undo,
