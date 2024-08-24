@@ -117,5 +117,8 @@ export function possibleQueenMoves({ futureBoardState, teamColour }) {
     moveMap.push(...this.getPossibleDiagonalMoves(cdn).moveMap)
   });
 
+  console.log(teamColour)
+  console.log(moveMap)
+
   return { moveList: moveList, moveMap: moveMap };
 }

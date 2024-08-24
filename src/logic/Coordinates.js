@@ -74,10 +74,10 @@ export class ChessCoordinate {
 
   isOccupiedByOpponent(boardState, teamColor) {
     const piece = boardState[this.coordinate];
-    const enemyColorv1 = piece ? piece.slice(-1) : null;
-    const enemyColorv2 = Color.getLetter(Color.toggleColor(teamColor))
+    const pieceColor = piece ? piece.slice(-1) : null;
+    const enemyColor = Color.getLetter(Color.toggleColor(teamColor));
 
-    if (piece && enemyColorv1 === enemyColorv2) {
+    if (piece && pieceColor === enemyColor) {
       return true;
     }
     return false;

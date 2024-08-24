@@ -338,13 +338,12 @@ export default class Referee {
 
   getPossibleCaptures(teamColour) {
     const moves = [];
-    moves.push(...this.getPossibleKnightMove(teamColour).moveList);
-    moves.push(...this.getPossibleBishopMoves(teamColour).moveList);
-    moves.push(...this.getPossibleRookMoves(teamColour).moveList);
+    // moves.push(...this.getPossibleKnightMove(teamColour).moveList);
+    // moves.push(...this.getPossibleBishopMoves(teamColour).moveList);
+    // moves.push(...this.getPossibleRookMoves(teamColour).moveList);
     moves.push(...this.getPossibleQueenMoves(teamColour).moveList);
-    moves.push(...this.getPossibleKingMoves(teamColour).moveList);
-    moves.push(...this.getPossiblePawnCaptures(teamColour).moveList);
-
+    // moves.push(...this.getPossibleKingMoves(teamColour).moveList);
+    // moves.push(...this.getPossiblePawnCaptures(teamColour).moveList);
     return moves;
   }
 
