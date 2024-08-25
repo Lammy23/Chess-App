@@ -5,17 +5,8 @@ export class Knight extends ChessPiece {
   // getPossibleMoves(<ChessCoordinate>[] coordinates): <String>[] (list of coordinates)
   // getPossibleMoveMap() - separation of concerns
 
-  // Fields
-  pieceColor; // String
-  #boardState;
-
-  constructor(pieceColor, boardState) {
-    super();
-    this.pieceColor = pieceColor;
-    this.#boardState = boardState;
-  }
-
-  getPossibleMovesFrom(...coordinates) {
+ // color handled by ChessPIece
+  getPossibleMovesFrom(coordinates, boardState) {
     const moves = [];
     coordinates.forEach((coordinate) => {
       // possible knight moves
@@ -28,8 +19,8 @@ export class Knight extends ChessPiece {
         coordinate.plus({ fileStep: x[i], rankStep: y[i] });
         if (coordinate.coordinate !== origin) {
           if (
-            !coordinate.isOccupied(this.#boardState) ||
-            coordinate.isOccupiedByOpponent(this.#boardState, this.pieceColor)
+            !coordinate.isOccupied(boardState) ||
+            coordinate.isOccupiedByOpponent(boardState, this.pieceColor)
           ) {
             moves.push(coordinate.coordinate);
           }
@@ -40,8 +31,8 @@ export class Knight extends ChessPiece {
         coordinate.plus({ rankStep: x[i], fileStep: y[i] });
         if (coordinate.coordinate !== origin) {
           if (
-            !coordinate.isOccupied(this.#boardState) ||
-            coordinate.isOccupiedByOpponent(this.#boardState, this.pieceColor)
+            !coordinate.isOccupied(boardState) ||
+            coordinate.isOccupiedByOpponent(boardState, this.pieceColor)
           ) {
             moves.push(coordinate.coordinate);
           }

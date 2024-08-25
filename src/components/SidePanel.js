@@ -14,6 +14,7 @@ function SidePanel() {
     lastMoveWasCapture,
     lastMoveWasCheck,
     lastMoveWasCheckmate,
+    currentTurn,
   } = useMovementContext();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function SidePanel() {
             lastMoveWasCapture,
             lastMoveWasCheck,
             lastMoveWasCheckmate
-          ).fullNotation;
+          ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
           return [...prev];
         });
       } else {
@@ -47,7 +48,7 @@ function SidePanel() {
               lastMoveWasCapture,
               lastMoveWasCheck,
               lastMoveWasCheckmate
-            ).fullNotation,
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn),
           };
           return [...prev];
         });
