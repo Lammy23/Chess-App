@@ -5,6 +5,7 @@ import Referee from "../logic/Referee.js";
 import { ChessPiece } from "../logic/Piece.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
+const preloadedAudio = {};
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
@@ -30,14 +31,25 @@ export const MovementProvider = ({ children, appRef }) => {
 
   const [currentTurn, setCurrentTurn] = useState(Color.white);
 
+  // const playSound = (sound) => {
+  //   const audio = new Audio(`assets/sounds/${sound}.mp3`);
+  //   audio.play();
+  // };
+
+  const preloadSound = (sound) => {
+    preloadedAudio[sound] = new Audio(`assets/sounds/${sound}.mp3`);
+    preloadedAudio[sound].load();
+  };
+
   const playSound = (sound) => {
-    const audio = new Audio(`assets/sounds/${sound}.mp3`);
+    const audio = preloadedAudio[sound];
+    audio.currentTime = 0; // Reset to start
     audio.play();
   };
 
   const toggleCurrentTurn = () => {
-    setCurrentTurn(prev => Color.toggleColor(prev))
-  }
+    setCurrentTurn((prev) => Color.toggleColor(prev));
+  };
 
   /**
    * This function returns various elements and properties of the chessboard div.
@@ -310,7 +322,7 @@ export const MovementProvider = ({ children, appRef }) => {
           //Player turns
           toggleCurrentTurn();
         } else {
-          playSound("buzzer"); //Sound queue for illegal moves
+          // Illegal move
         }
       }
       // Will reset piece if the position isn't updated
@@ -321,7 +333,15 @@ export const MovementProvider = ({ children, appRef }) => {
     }
   }
 
+  // Audio peformance improvements
   useEffect(() => {
+    preloadSound("mariojump");
+    preloadSound("englishorspanish");
+    preloadSound("getout");
+  }, []);
+
+  useEffect(() => {
+    // Preload other sounds
     /* Upon loading the app, this should be the default position of the chess board */
     setBoardState(() => {
       setBoardHistory((prev) => {

@@ -109,10 +109,13 @@ export class PieceNotation {
   calculateNotation(boardState, currentTurn) {
     this.#takesPart = this.#isCapture ? "x" : "";
     if (this.#isCheck) {
-      this.#checkPart = "+";
-    } else if (this.#isCheckmate) {
-      this.#checkmatePart = "#";
+      if (this.#isCheckmate) {
+        this.#checkmatePart = "#";
+      } else {
+        this.#checkPart = "+";
+      }
     }
+
     this.#coordinatePart = this.to.coordinate;
     this.#piecePart = this.pieceMap[this.piece];
     if (this.piece === ChessPiece.pawn) this.#specialPawnNotation();
