@@ -4,7 +4,10 @@
 }
 
 #side-panel {
-    height: 560px;
-    width: 280px;
-    margin-left: 35px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.45) transparent;
+  height: 560px;
+  width: 280px;
+  margin-left: 35px;
 }
