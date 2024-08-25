@@ -10,7 +10,7 @@ function MoveNotation({ moveNotation, color, moveSetNumber }) {
     setMoveCount,
     setInEditMode,
     setCurrentTurn,
-    currentTurn,
+    playSound
   } = useMovementContext();
   useEffect(() => {
     if (color === Color.white) {
@@ -33,6 +33,7 @@ function MoveNotation({ moveNotation, color, moveSetNumber }) {
   return (
     <div
       onClick={() => {
+        playSound('chesss')
         setInEditMode(false);
         setMoveCount((prev) => {
           return color === Color.white

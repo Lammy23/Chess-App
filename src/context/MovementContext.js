@@ -124,7 +124,10 @@ export const MovementProvider = ({ children, appRef }) => {
 
   function undo() {
     setInEditMode(false);
-    if (moveCount === 0) return false;
+    if (moveCount === 0) {
+      return false;
+    }
+    playSound("chesss");
     const newCount = moveCount - 1;
     setMoveCount(newCount);
     // setBoardState(boardHistory[newCount]);
@@ -136,6 +139,7 @@ export const MovementProvider = ({ children, appRef }) => {
   function redo() {
     setInEditMode(false);
     if (moveCount === boardHistory.length - 1) return false;
+    playSound("chesss");
     const newCount = moveCount + 1;
     setMoveCount(newCount);
     // setBoardState(boardHistory[newCount]);
@@ -364,6 +368,7 @@ export const MovementProvider = ({ children, appRef }) => {
     preloadSound("mariojump");
     preloadSound("englishorspanish");
     preloadSound("getout");
+    preloadSound("chesss");
   }, []);
 
   useEffect(() => {
@@ -535,6 +540,7 @@ export const MovementProvider = ({ children, appRef }) => {
         setInEditMode,
         moveList,
         setMoveList,
+        playSound,
       }}
     >
       {children}
