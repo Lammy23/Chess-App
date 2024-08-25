@@ -1,6 +1,8 @@
 import React from "react";
 import "./SidePanel.css";
 import "./MoveStrip.css";
+import MoveNotation from "./MoveNotation";
+import { Color } from "./constants";
 
 function MoveStrip({ moveSetNumber, whiteMove, blackMove }) {
   const getBackgroundColor = () => {
@@ -13,8 +15,20 @@ function MoveStrip({ moveSetNumber, whiteMove, blackMove }) {
       style={{ backgroundColor: getBackgroundColor() }}
     >
       <div>{moveSetNumber}.</div>
-      <div>{whiteMove}</div>
-      <div>{blackMove}</div>
+      <div>
+        <MoveNotation
+          moveNotation={whiteMove}
+          color={Color.white}
+          moveSetNumber={moveSetNumber}
+        />
+      </div>
+      <div>
+        <MoveNotation
+          moveNotation={blackMove}
+          color={Color.black}
+          moveSetNumber={moveSetNumber}
+        />
+      </div>
     </div>
   );
 }

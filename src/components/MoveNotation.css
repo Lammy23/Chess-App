@@ -1,0 +1,12 @@
+#active {
+  display: inline;
+  padding: 1px 7px 3.5px 7px;
+  background-color: #454442;
+  border-radius: 3px;
+}
+
+#inactive {
+  display: inline;
+  padding: 1px 7px 3.5px 7px;
+  background-color: none;
+}
