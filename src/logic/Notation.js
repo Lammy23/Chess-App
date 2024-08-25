@@ -56,6 +56,7 @@ export class PieceNotation {
     this.piece = piece;
     this.from = from;
     this.to = to;
+    console.log(this.to.minus(this.from).fileStep);
     this.#isCapture = isCapture;
     this.#isCheck = isCheck;
     this.#isCheckmate = isCheckmate;
@@ -65,7 +66,7 @@ export class PieceNotation {
   // Private Methods
   #specialPawnNotation() {
     // PAWN
-    if (this.from.minus(this.to).fileStep >= 1) {
+    if (this.from.minus(this.to).fileStep === 1) {
       // If on different files
       this.#filePart = this.from.coordinate[0];
       this.#takesPart = "x";
@@ -131,7 +132,13 @@ export class PieceNotation {
         pieceCounter++;
       }
     });
-    if (pieceCounter >= 2) {
+    if (
+      pieceCounter >= 2 &&
+      !(
+        this.piece === ChessPiece.pawn && this.to.minus(this.from).fileStep >= 1
+      )
+    ) {
+      console.log("Im special");
       this.#filePart = this.from.coordinate[0];
     }
 
