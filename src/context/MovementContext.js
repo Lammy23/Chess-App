@@ -3,6 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Color, files, ranks } from "../components/constants";
 import Referee from "../logic/Referee.js";
 import { ChessPiece } from "../logic/Piece.js";
+import { PieceNotation } from "../logic/Notation.js";
+import { ChessCoordinate } from "../logic/Coordinates.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
 const preloadedAudio = {};
@@ -31,6 +33,7 @@ export const MovementProvider = ({ children, appRef }) => {
 
   const [currentTurn, setCurrentTurn] = useState(Color.white);
   const [inEditMode, setInEditMode] = useState(true);
+  const [moveList, setMoveList] = useState([]);
 
   // const playSound = (sound) => {
   //   const audio = new Audio(`assets/sounds/${sound}.mp3`);
@@ -147,7 +150,6 @@ export const MovementProvider = ({ children, appRef }) => {
    * @param {String} position
    */
   function grabPiece(e, position) {
-    setInEditMode(true);
     e.preventDefault();
     const element = e.target; // Extracting the div element (chess tile) from the React event.
 
@@ -219,6 +221,27 @@ export const MovementProvider = ({ children, appRef }) => {
     }
   }
 
+  const clearHistory = () => {
+    // Took a while to figure out
+    // Remove everything in front of the list
+    const activeMoveSet = Math.ceil(moveCount / 2);
+    setMoveList((prev) => {
+      return prev.filter((val, pos) => {
+        return pos < activeMoveSet;
+      });
+    });
+    setMoveHistory((prev) => {
+      return prev.filter((val, pos) => {
+        return pos < moveCount;
+      });
+    });
+    setBoardHistory((prev) => {
+      return prev.filter((val, pos) => {
+        return pos < moveCount + 1;
+      });
+    });
+  };
+
   /**
    * Function to drop the piece. This function runs once.
    */
@@ -288,7 +311,10 @@ export const MovementProvider = ({ children, appRef }) => {
           }
 
           playSound(soundToPlay);
-
+          if (inEditMode === false) {
+            clearHistory();
+            setInEditMode(true);
+          }
           const newCount = moveCount + 1;
 
           setBoardState((prev) => {
@@ -424,6 +450,63 @@ export const MovementProvider = ({ children, appRef }) => {
     setBoardState(boardHistory[moveCount]);
   }, [moveCount]);
 
+  useEffect(() => {
+    var activeMove = moveHistory[moveCount - 1];
+    const activeMoveSet = Math.ceil(moveCount / 2);
+    if (activeMove && inEditMode) {
+      if (
+        moveList[0] &&
+        activeMoveSet <= moveList[moveList.length - 1].moveSetNumber
+      ) {
+        if (activeMoveSet * 2 === moveCount) {
+          // Black
+          setMoveList((prev) => {
+            const working = prev[activeMoveSet - 1];
+            working.blackMove = new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
+            return [...prev];
+          });
+        } else {
+          console.log("editing white");
+          // white
+          setMoveList((prev) => {
+            const working = prev[activeMoveSet - 1];
+            working.whiteMove = new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
+            return [...prev];
+          });
+        }
+      } else {
+        setMoveList((prev) => {
+          prev[activeMoveSet - 1] = {
+            moveSetNumber: activeMoveSet,
+            whiteMove: new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn),
+          };
+          return [...prev];
+        });
+      }
+    }
+  }, [moveCount]);
+
   return (
     <MovementContext.Provider // Providing function and variables for other components to use.
       value={{
@@ -450,6 +533,8 @@ export const MovementProvider = ({ children, appRef }) => {
         setCurrentTurn,
         inEditMode,
         setInEditMode,
+        moveList,
+        setMoveList,
       }}
     >
       {children}

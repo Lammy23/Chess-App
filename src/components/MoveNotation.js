@@ -34,7 +34,6 @@ function MoveNotation({ moveNotation, color, moveSetNumber }) {
     <div
       onClick={() => {
         setInEditMode(false);
-        console.log("Hello");
         setMoveCount((prev) => {
           return color === Color.white
             ? moveSetNumber * 2 - 1

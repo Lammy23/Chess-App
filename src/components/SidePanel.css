@@ -4,6 +4,7 @@
 }
 
 #side-panel {
+  user-select: none;
   overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.45) transparent;
