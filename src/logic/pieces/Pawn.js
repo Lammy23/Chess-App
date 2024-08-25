@@ -1,24 +1,22 @@
 import { Color } from "../../components/constants";
 import { ChessPiece } from "../Piece";
 
-export class Pawn extends ChessPiece { // TODO: make the extension meaningful
+export class Pawn extends ChessPiece {
+  // TODO: make the extension meaningful
+
   // getPossibleMoves(<ChessCoordinate>[] coordinates): <String>[] (list of coordinates)
   // getPossibleMoveMap() - separation of concerns
 
-  pieceColor; // String
   #specialRank; // number
   #pawnDirection; // number
-  #boardState; // hashmap
 
-  constructor(pieceColor, boardState) {
-    super();
-    this.pieceColor = pieceColor;
-    this.#boardState = boardState;
+  constructor(pieceColor) {
+    super(pieceColor);
     this.#specialRank = pieceColor === Color.white ? 2 : 7;
     this.#pawnDirection = pieceColor === Color.white ? 1 : -1;
   }
 
-  getPossibleMovesFrom(...coordinates) {
+  getPossibleMovesFrom(coordinates, boardState) {
     const moves = [];
     coordinates.forEach((coordinate) => {
       let origin = coordinate.coordinate;
@@ -29,7 +27,7 @@ export class Pawn extends ChessPiece { // TODO: make the extension meaningful
             rankStep: 2 * this.#pawnDirection,
           }) !== origin // If operation doesn't bounce
         ) {
-          if (!coordinate.isOccupied(this.#boardState))
+          if (!coordinate.isOccupied(boardState))
             moves.push(coordinate.coordinate);
         }
       }
@@ -37,7 +35,7 @@ export class Pawn extends ChessPiece { // TODO: make the extension meaningful
         coordinate.plus({ fileStep: 0, rankStep: 1 * this.#pawnDirection }) !==
         origin
       ) {
-        if (!coordinate.isOccupied(this.#boardState))
+        if (!coordinate.isOccupied(boardState))
           moves.push(coordinate.coordinate);
       }
     });
@@ -45,7 +43,7 @@ export class Pawn extends ChessPiece { // TODO: make the extension meaningful
     return moves;
   }
 
-  getPossibleCapturesFrom(...coordinates) {
+  getPossibleCapturesFrom(coordinates, boardState) {
     const captures = [];
     coordinates.forEach((coordinate) => {
       let origin = coordinate.coordinate;
@@ -56,8 +54,8 @@ export class Pawn extends ChessPiece { // TODO: make the extension meaningful
         }).coordinate !== origin
       ) {
         if (
-          !coordinate.isOccupied(this.#boardState) ||
-          coordinate.isOccupiedByOpponent(this.#boardState, this.pieceColor)
+          !coordinate.isOccupied(boardState) ||
+          coordinate.isOccupiedByOpponent(boardState, this.pieceColor)
         )
           captures.push(coordinate.coordinate);
       }
@@ -71,8 +69,8 @@ export class Pawn extends ChessPiece { // TODO: make the extension meaningful
         }).coordinate !== origin
       ) {
         if (
-          !coordinate.isOccupied(this.#boardState) ||
-          coordinate.isOccupiedByOpponent(this.#boardState, this.pieceColor)
+          !coordinate.isOccupied(boardState) ||
+          coordinate.isOccupiedByOpponent(boardState, this.pieceColor)
         )
           captures.push(coordinate.coordinate);
       }

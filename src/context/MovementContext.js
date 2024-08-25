@@ -8,16 +8,7 @@ const MovementContext = createContext(); // Creating the Movement Context
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
-// Im pretty sure this is bad practice but im not sure how else I can keep track of the player turns
-let currentTurn = Color.white;
-// export const PieceType = { //List of Chess pieces used for determining the valid moves for referee
-//   KING: 'KING',
-//   QUEEN: 'QUEEN',
-//   BISHOP: 'BISHOP',
-//   KNIGHT: 'KNIGHT',
-//   ROOK: 'ROOK',
-//   PAWN: 'PAWN'
-// };
+// Im pretty sure this is bad practice but im not sure how else I can keep track of the player turns => Fixed by using state variable
 
 export const MovementProvider = ({ children, appRef }) => {
   const [boardState, setBoardState] =
@@ -37,10 +28,16 @@ export const MovementProvider = ({ children, appRef }) => {
   const [lastMoveWasCheck, setLastMoveWasCheck] = useState(false);
   const [lastMoveWasCheckmate, setLastMoveWasCheckmate] = useState(false);
 
+  const [currentTurn, setCurrentTurn] = useState(Color.white);
+
   const playSound = (sound) => {
     const audio = new Audio(`assets/sounds/${sound}.mp3`);
     audio.play();
   };
+
+  const toggleCurrentTurn = () => {
+    setCurrentTurn(prev => Color.toggleColor(prev))
+  }
 
   /**
    * This function returns various elements and properties of the chessboard div.
@@ -118,7 +115,7 @@ export const MovementProvider = ({ children, appRef }) => {
     setBoardState(boardHistory[newCount]);
 
     // reflect turns
-    currentTurn = Color.toggleColor(currentTurn);
+    toggleCurrentTurn();
   }
 
   function redo() {
@@ -130,7 +127,7 @@ export const MovementProvider = ({ children, appRef }) => {
     setBoardState(boardHistory[newCount]);
 
     // reflect turns
-    currentTurn = Color.toggleColor(currentTurn);
+    toggleCurrentTurn();
   }
 
   /**
@@ -263,14 +260,11 @@ export const MovementProvider = ({ children, appRef }) => {
           soundToPlay = "mariojump";
           if (boardState[currentCoordinates]) {
             setLastMoveWasCapture(true);
-            console.log("capture");
           } else {
             setLastMoveWasCapture(false);
-            console.log("no capture");
           }
           if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
             setLastMoveWasCheck(true);
-            console.log("check");
             soundToPlay = "getout";
             if (referee.isCheckmatingOpponent()) {
               setLastMoveWasCheckmate(true);
@@ -279,7 +273,6 @@ export const MovementProvider = ({ children, appRef }) => {
             }
           } else {
             setLastMoveWasCheck(false);
-            console.log("no check");
           }
 
           playSound(soundToPlay);
@@ -315,7 +308,7 @@ export const MovementProvider = ({ children, appRef }) => {
           ]);
 
           //Player turns
-          currentTurn = Color.toggleColor(currentTurn);
+          toggleCurrentTurn();
         } else {
           playSound("buzzer"); //Sound queue for illegal moves
         }
@@ -426,6 +419,7 @@ export const MovementProvider = ({ children, appRef }) => {
         lastMoveWasCapture,
         lastMoveWasCheck,
         lastMoveWasCheckmate,
+        currentTurn,
       }}
     >
       {children}
