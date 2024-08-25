@@ -30,6 +30,7 @@ export const MovementProvider = ({ children, appRef }) => {
   const [lastMoveWasCheckmate, setLastMoveWasCheckmate] = useState(false);
 
   const [currentTurn, setCurrentTurn] = useState(Color.white);
+  const [inEditMode, setInEditMode] = useState(true);
 
   // const playSound = (sound) => {
   //   const audio = new Audio(`assets/sounds/${sound}.mp3`);
@@ -119,24 +120,22 @@ export const MovementProvider = ({ children, appRef }) => {
   }
 
   function undo() {
-    console.log("rewinding");
+    setInEditMode(false);
     if (moveCount === 0) return false;
     const newCount = moveCount - 1;
     setMoveCount(newCount);
-    console.log(boardHistory[newCount]);
-    setBoardState(boardHistory[newCount]);
+    // setBoardState(boardHistory[newCount]);
 
     // reflect turns
     toggleCurrentTurn();
   }
 
   function redo() {
-    console.log("redoing");
+    setInEditMode(false);
     if (moveCount === boardHistory.length - 1) return false;
     const newCount = moveCount + 1;
     setMoveCount(newCount);
-    console.log(boardHistory[newCount]);
-    setBoardState(boardHistory[newCount]);
+    // setBoardState(boardHistory[newCount]);
 
     // reflect turns
     toggleCurrentTurn();
@@ -148,6 +147,7 @@ export const MovementProvider = ({ children, appRef }) => {
    * @param {String} position
    */
   function grabPiece(e, position) {
+    setInEditMode(true);
     e.preventDefault();
     const element = e.target; // Extracting the div element (chess tile) from the React event.
 
@@ -420,6 +420,10 @@ export const MovementProvider = ({ children, appRef }) => {
     });
   }, []);
 
+  useEffect(() => {
+    setBoardState(boardHistory[moveCount]);
+  }, [moveCount]);
+
   return (
     <MovementContext.Provider // Providing function and variables for other components to use.
       value={{
@@ -431,15 +435,21 @@ export const MovementProvider = ({ children, appRef }) => {
         movePiece,
         dropPiece,
         moveCount,
+        setMoveCount,
         boardState,
         boardHistory,
+        setBoardHistory,
         moveHistory,
+        setMoveHistory,
         undo,
         redo,
         lastMoveWasCapture,
         lastMoveWasCheck,
         lastMoveWasCheckmate,
         currentTurn,
+        setCurrentTurn,
+        inEditMode,
+        setInEditMode,
       }}
     >
       {children}

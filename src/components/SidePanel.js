@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import "./SidePanel.css";
 import MoveStrip from "./MoveStrip";
 import { useMovementContext } from "../context/MovementContext";
@@ -9,42 +9,89 @@ function SidePanel() {
   const [moveList, setMoveList] = useState([]);
   const {
     moveHistory,
+    setMoveHistory,
     moveCount,
     boardHistory,
+    setBoardHistory,
     lastMoveWasCapture,
     lastMoveWasCheck,
     lastMoveWasCheckmate,
     currentTurn,
+    inEditMode,
   } = useMovementContext();
 
   useEffect(() => {
-    const latest = moveHistory[moveCount - 1];
-    const currentMoveSet = Math.ceil(moveCount / 2);
-    if (latest) {
+    // Took a while to figure out
+    // Remove everything in front of the list
+    if (inEditMode) {
+      const activeMoveSet = Math.ceil(moveCount / 2);
+      setMoveList((prev) => {
+        return prev.filter((val, pos) => {
+          return pos < activeMoveSet;
+        });
+      });
+      setMoveHistory((prev) => {
+        return prev.filter((val, pos) => {
+          return pos < moveCount;
+        });
+      });
+      setBoardHistory((prev) => {
+        return prev.filter((val, pos) => {
+          return pos < moveCount + 1;
+        });
+      });
+    }
+  }, [inEditMode, moveCount, setBoardHistory, setMoveHistory]);
+
+  useEffect(() => {
+    var activeMove = moveHistory[moveCount - 1];
+    const activeMoveSet = Math.ceil(moveCount / 2);
+    console.log(activeMoveSet);
+    if (activeMove && inEditMode) {
       if (
         moveList[0] &&
-        currentMoveSet <= moveList[moveList.length - 1].moveSetNumber
+        activeMoveSet <= moveList[moveList.length - 1].moveSetNumber
       ) {
-        setMoveList((prev) => {
-          const working = prev[currentMoveSet - 1];
-          working.blackMove = new PieceNotation(
-            latest.piece,
-            new ChessCoordinate(latest.from),
-            new ChessCoordinate(latest.to),
-            lastMoveWasCapture,
-            lastMoveWasCheck,
-            lastMoveWasCheckmate
-          ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
-          return [...prev];
-        });
+        if (activeMoveSet * 2 === moveCount) {
+          console.log("editing black");
+          // Black
+          setMoveList((prev) => {
+            const working = prev[activeMoveSet - 1];
+            working.blackMove = new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
+            return [...prev];
+          });
+        } else {
+          console.log("editing white");
+          // white
+          setMoveList((prev) => {
+            const working = prev[activeMoveSet - 1];
+            working.whiteMove = new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
+            return [...prev];
+          });
+        }
       } else {
+        console.log("new line");
         setMoveList((prev) => {
-          prev[currentMoveSet - 1] = {
-            moveSetNumber: currentMoveSet,
+          prev[activeMoveSet - 1] = {
+            moveSetNumber: activeMoveSet,
             whiteMove: new PieceNotation(
-              latest.piece,
-              new ChessCoordinate(latest.from),
-              new ChessCoordinate(latest.to),
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
               lastMoveWasCapture,
               lastMoveWasCheck,
               lastMoveWasCheckmate
@@ -54,7 +101,7 @@ function SidePanel() {
         });
       }
     }
-  }, [moveHistory, moveCount, boardHistory]);
+  }, [moveCount]);
 
   return (
     <div id="side-panel" className="background">
