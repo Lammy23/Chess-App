@@ -3,6 +3,7 @@ import ChessBoard from "./components/ChessBoard";
 import { MovementProvider } from "./context/MovementContext";
 
 import "./App.css";
+import A from "./components/A";
 
 function App() {
   const appRef = useRef(); // Using a new React Hook useRef (as in use reference)
@@ -16,6 +17,7 @@ function App() {
     <MovementProvider appRef={appRef}> {/* Passing the div as a prop to the MovementContext (Logic) so that it know the dimensions (for out of bounds programming) */}
       <div ref={appRef}> {/* Telling useRef to use this div as the reference */}
         <ChessBoard />
+        {/* <A /> */}
       </div>
     </MovementProvider>
   );

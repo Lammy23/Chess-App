@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, Color } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function rookMove({
@@ -61,7 +61,7 @@ export function rookMove({
 }
 
 export function possibleRookMoves({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
+  var color = Color.getLetter(teamColour)
 
   // 1. Get rook coordinates
   let rookCoordinates = [];

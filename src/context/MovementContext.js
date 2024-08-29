@@ -1,27 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import { files, ranks } from "../components/constants";
+import { Color, files, ranks } from "../components/constants";
 import Referee from "../logic/Referee.js";
+import { ChessPiece } from "../logic/Piece.js";
+import { PieceNotation } from "../logic/Notation.js";
+import { ChessCoordinate } from "../logic/Coordinates.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
+const preloadedAudio = {};
 
 // Creating and exporting a function that components can import in order to use variables and functions from this context.
 export const useMovementContext = () => useContext(MovementContext);
-// Im pretty sure this is bad practice but im not sure how else I can keep track of the player turns
-let currentTurn = "WHITE";
-// export const PieceType = { //List of Chess pieces used for determining the valid moves for referee
-//   KING: 'KING',
-//   QUEEN: 'QUEEN',
-//   BISHOP: 'BISHOP',
-//   KNIGHT: 'KNIGHT',
-//   ROOK: 'ROOK',
-//   PAWN: 'PAWN'
-// };
-
-// export const TeamType = {
-//   WHITE: 'WHITE',
-//   BLACK: 'BLACK',
-// }
+// Im pretty sure this is bad practice but im not sure how else I can keep track of the player turns => Fixed by using state variable
 
 export const MovementProvider = ({ children, appRef }) => {
   const [boardState, setBoardState] =
@@ -37,9 +27,32 @@ export const MovementProvider = ({ children, appRef }) => {
   const [moveCount, setMoveCount] = useState(0);
   const referee = new Referee(); //Instance of referee to check the movement of pieces
 
+  const [lastMoveWasCapture, setLastMoveWasCapture] = useState(false);
+  const [lastMoveWasCheck, setLastMoveWasCheck] = useState(false);
+  const [lastMoveWasCheckmate, setLastMoveWasCheckmate] = useState(false);
+
+  const [currentTurn, setCurrentTurn] = useState(Color.white);
+  const [inEditMode, setInEditMode] = useState(true);
+  const [moveList, setMoveList] = useState([]);
+
+  // const playSound = (sound) => {
+  //   const audio = new Audio(`assets/sounds/${sound}.mp3`);
+  //   audio.play();
+  // };
+
+  const preloadSound = (sound) => {
+    preloadedAudio[sound] = new Audio(`assets/sounds/${sound}.mp3`);
+    preloadedAudio[sound].load();
+  };
+
   const playSound = (sound) => {
-    const audio = new Audio(`assets/sounds/${sound}.mp3`);
+    const audio = preloadedAudio[sound];
+    audio.currentTime = 0; // Reset to start
     audio.play();
+  };
+
+  const toggleCurrentTurn = () => {
+    setCurrentTurn((prev) => Color.toggleColor(prev));
   };
 
   /**
@@ -110,27 +123,29 @@ export const MovementProvider = ({ children, appRef }) => {
   }
 
   function undo() {
-    console.log("rewinding");
-    if (moveCount === 0) return false;
+    setInEditMode(false);
+    if (moveCount === 0) {
+      return false;
+    }
+    playSound("chesss");
     const newCount = moveCount - 1;
     setMoveCount(newCount);
-    console.log(boardHistory[newCount]);
-    setBoardState(boardHistory[newCount]);
+    // setBoardState(boardHistory[newCount]);
 
     // reflect turns
-    currentTurn = currentTurn === "WHITE" ? "BLACK" : "WHITE";
+    toggleCurrentTurn();
   }
 
   function redo() {
-    console.log("redoing");
+    setInEditMode(false);
     if (moveCount === boardHistory.length - 1) return false;
+    playSound("chesss");
     const newCount = moveCount + 1;
     setMoveCount(newCount);
-    console.log(boardHistory[newCount]);
-    setBoardState(boardHistory[newCount]);
+    // setBoardState(boardHistory[newCount]);
 
     // reflect turns
-    currentTurn = currentTurn === "WHITE" ? "BLACK" : "WHITE";
+    toggleCurrentTurn();
   }
 
   /**
@@ -210,6 +225,27 @@ export const MovementProvider = ({ children, appRef }) => {
     }
   }
 
+  const clearHistory = () => {
+    // Took a while to figure out
+    // Remove everything in front of the list
+    const activeMoveSet = Math.ceil(moveCount / 2);
+    setMoveList((prev) => {
+      return prev.filter((val, pos) => {
+        return pos < activeMoveSet;
+      });
+    });
+    setMoveHistory((prev) => {
+      return prev.filter((val, pos) => {
+        return pos < moveCount;
+      });
+    });
+    setBoardHistory((prev) => {
+      return prev.filter((val, pos) => {
+        return pos < moveCount + 1;
+      });
+    });
+  };
+
   /**
    * Function to drop the piece. This function runs once.
    */
@@ -254,26 +290,35 @@ export const MovementProvider = ({ children, appRef }) => {
         from its starting position */
         if (pieceType !== undefined && pieceType !== null) {
           if (pieceType.includes("_w")) {
-            pickedUpPiece = "WHITE";
+            pickedUpPiece = Color.white;
           } else if (pieceType.includes("_b")) {
-            pickedUpPiece = "BLACK";
+            pickedUpPiece = Color.black;
           }
         }
         if (referee.isMove() && currentTurn === pickedUpPiece) {
           soundToPlay = "mariojump";
+          if (boardState[currentCoordinates]) {
+            setLastMoveWasCapture(true);
+          } else {
+            setLastMoveWasCapture(false);
+          }
           if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
-            console.log("check");
+            setLastMoveWasCheck(true);
             soundToPlay = "getout";
             if (referee.isCheckmatingOpponent()) {
+              setLastMoveWasCheckmate(true);
               console.log("checkmate");
               soundToPlay = "englishorspanish";
             }
+          } else {
+            setLastMoveWasCheck(false);
           }
 
           playSound(soundToPlay);
-          console.log(boardHistory);
-          console.log(moveCount);
-
+          if (inEditMode === false) {
+            clearHistory();
+            setInEditMode(true);
+          }
           const newCount = moveCount + 1;
 
           setBoardState((prev) => {
@@ -300,18 +345,14 @@ export const MovementProvider = ({ children, appRef }) => {
             {
               from: activePieceOrigin,
               to: currentCoordinates,
-              piece: pieceType,
+              piece: ChessPiece.getPiece(pieceType),
             },
           ]);
 
           //Player turns
-          if (currentTurn === "WHITE") {
-            currentTurn = "BLACK";
-          } else if (currentTurn === "BLACK") {
-            currentTurn = "WHITE";
-          }
+          toggleCurrentTurn();
         } else {
-          playSound("buzzer"); //Sound queue for illegal moves
+          // Illegal move
         }
       }
       // Will reset piece if the position isn't updated
@@ -322,7 +363,16 @@ export const MovementProvider = ({ children, appRef }) => {
     }
   }
 
+  // Audio peformance improvements
   useEffect(() => {
+    preloadSound("mariojump");
+    preloadSound("englishorspanish");
+    preloadSound("getout");
+    preloadSound("chesss");
+  }, []);
+
+  useEffect(() => {
+    // Preload other sounds
     /* Upon loading the app, this should be the default position of the chess board */
     setBoardState(() => {
       setBoardHistory((prev) => {
@@ -401,6 +451,67 @@ export const MovementProvider = ({ children, appRef }) => {
     });
   }, []);
 
+  useEffect(() => {
+    setBoardState(boardHistory[moveCount]);
+  }, [moveCount]);
+
+  useEffect(() => {
+    var activeMove = moveHistory[moveCount - 1];
+    const activeMoveSet = Math.ceil(moveCount / 2);
+    if (activeMove && inEditMode) {
+      if (
+        moveList[0] &&
+        activeMoveSet <= moveList[moveList.length - 1].moveSetNumber
+      ) {
+        if (activeMoveSet * 2 === moveCount) {
+          // Black
+          setMoveList((prev) => {
+            const working = prev[activeMoveSet - 1];
+            working.blackMove = new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
+            return [...prev];
+          });
+        } else {
+          console.log("editing white");
+          // white
+          setMoveList((prev) => {
+            const working = prev[activeMoveSet - 1];
+            working.whiteMove = new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn);
+            return [...prev];
+          });
+        }
+      } else {
+        setMoveList((prev) => {
+          prev[activeMoveSet - 1] = {
+            moveSetNumber: activeMoveSet,
+            whiteMove: new PieceNotation(
+              activeMove.piece,
+              new ChessCoordinate(activeMove.from),
+              new ChessCoordinate(activeMove.to),
+              lastMoveWasCapture,
+              lastMoveWasCheck,
+              lastMoveWasCheckmate
+            ).calculateNotation(boardHistory[moveCount - 1], currentTurn),
+          };
+          return [...prev];
+        });
+      }
+    }
+  }, [moveCount]);
+
   return (
     <MovementContext.Provider // Providing function and variables for other components to use.
       value={{
@@ -411,10 +522,25 @@ export const MovementProvider = ({ children, appRef }) => {
         grabPiece,
         movePiece,
         dropPiece,
+        moveCount,
+        setMoveCount,
         boardState,
+        boardHistory,
+        setBoardHistory,
         moveHistory,
+        setMoveHistory,
         undo,
         redo,
+        lastMoveWasCapture,
+        lastMoveWasCheck,
+        lastMoveWasCheckmate,
+        currentTurn,
+        setCurrentTurn,
+        inEditMode,
+        setInEditMode,
+        moveList,
+        setMoveList,
+        playSound,
       }}
     >
       {children}

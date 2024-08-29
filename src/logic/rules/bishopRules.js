@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, Color } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function bishopMove({
@@ -68,7 +68,7 @@ export function bishopMove({
 }
 
 export function possibleBishopMoves({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
+  var color = Color.getLetter(teamColour)
 
   // 1. Get bishop coordinates
   let bishopCoordinates = [];

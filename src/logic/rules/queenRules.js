@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, Color } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function queenMove({
@@ -95,7 +95,7 @@ export function queenMove({
 }
 
 export function possibleQueenMoves({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
+  var color = Color.getLetter(teamColour)
 
   // 1. Get queen coordinates
   let queenCoordinates = [];
@@ -116,6 +116,10 @@ export function possibleQueenMoves({ futureBoardState, teamColour }) {
     moveList.push(...this.getPossibleDiagonalMoves(cdn).moveList);
     moveMap.push(...this.getPossibleDiagonalMoves(cdn).moveMap)
   });
+
+  //TODO: printing the below gives wierd results. Fix them.
+  // console.log(teamColour)
+  // console.log(moveMap)
 
   return { moveList: moveList, moveMap: moveMap };
 }

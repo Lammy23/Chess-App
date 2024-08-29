@@ -1,4 +1,4 @@
-import { allChessCoordinates } from "../../components/constants";
+import { allChessCoordinates, Color } from "../../components/constants";
 import { ChessCoordinate } from "../Coordinates";
 
 export function pawnMove({
@@ -13,8 +13,8 @@ export function pawnMove({
   moveHistory,
 }) {
   // Below 2 lines are for if its a white or black pawn
-  const specialRank = teamColour === "WHITE" ? 2 : 7;
-  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
+  const specialRank = teamColour === Color.white ? 2 : 7;
+  const pawnDirection = teamColour === Color.white ? 1 : -1;
 
   if (
     previousRank === specialRank &&
@@ -67,9 +67,9 @@ export function pawnMove({
 }
 
 export function possiblePawnMoves({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
-  const specialRank = teamColour === "WHITE" ? 2 : 7;
-  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
+  var color = Color.getLetter(teamColour)
+  const specialRank = teamColour === Color.white ? 2 : 7;
+  const pawnDirection = teamColour === Color.white ? 1 : -1;
 
   // 1. Get Pawn coordinates
   var pawnCoordinates = [];
@@ -96,7 +96,7 @@ export function possiblePawnMoves({ futureBoardState, teamColour }) {
       if (
         coordinate.plus({ fileStep: 0, rankStep: 2 * pawnDirection }) !== origin
       ) {
-        if (!coordinate.isOccupied({ futureBoardState }))
+        if (!coordinate.isOccupied(futureBoardState))
           moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -106,7 +106,7 @@ export function possiblePawnMoves({ futureBoardState, teamColour }) {
     if (
       coordinate.plus({ fileStep: 0, rankStep: 1 * pawnDirection }) !== origin
     ) {
-      if (!coordinate.isOccupied({ futureBoardState }))
+      if (!coordinate.isOccupied(futureBoardState))
         moveList.push(coordinate.coordinate);
       moveMap.push({
         from: origin,
@@ -122,8 +122,8 @@ export function possiblePawnMoves({ futureBoardState, teamColour }) {
 }
 
 export function possiblePawnCaptures({ futureBoardState, teamColour }) {
-  var color = teamColour === "WHITE" ? "w" : "b";
-  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
+  var color = Color.getLetter(teamColour);
+  const pawnDirection = teamColour === Color.white ? 1 : -1;
 
   // 1. Get Pawn coordinates
   var pawnCoordinates = [];
@@ -153,8 +153,8 @@ export function possiblePawnCaptures({ futureBoardState, teamColour }) {
       }).coordinate !== origin
     ) {
       if (
-        !coordinate.isOccupied({ futureBoardState }) ||
-        coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+        !coordinate.isOccupied(futureBoardState) ||
+        coordinate.isOccupiedByOpponent(futureBoardState, teamColour)
       )
       moveList.push(coordinate.coordinate);
       moveMap.push({
@@ -171,8 +171,8 @@ export function possiblePawnCaptures({ futureBoardState, teamColour }) {
       }).coordinate !== origin
     ) {
       if (
-        !coordinate.isOccupied({ futureBoardState }) ||
-        coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })
+        !coordinate.isOccupied(futureBoardState) ||
+        coordinate.isOccupiedByOpponent(futureBoardState, teamColour)
       )
       moveList.push(coordinate.coordinate);
       moveMap.push({
@@ -206,7 +206,7 @@ export function validEnPassant({
   // console.log(`teamColour: ${teamColour}`);
   // console.log("moveHistory", moveHistory);
 
-  const pawnDirection = teamColour === "WHITE" ? 1 : -1;
+  const pawnDirection = teamColour === Color.white ? 1 : -1;
   const lastMove = moveHistory[moveHistory.length - 1];
   if (!lastMove) return false;
 
