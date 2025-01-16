@@ -21,13 +21,13 @@ export const numToFile = {
 };
 
 export const Color = {
-  white: "white",
-  black: "black",
+  white: "White",
+  black: "Black",
   toggleColor: (color) => {
-    return color === "white" ? "black" : "white";
+    return color === "White" ? "Black" : "White";
   },
   getLetter: (color) => {
-    return color === "white" ? "w" : "b";
+    return color === "White" ? "w" : "b";
   },
 };
 

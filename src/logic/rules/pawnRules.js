@@ -117,8 +117,9 @@ export function possiblePawnMoves({ futureBoardState, teamColour }) {
   for (let coordinate of pawnCoordinates) {
     check(coordinate);
   }
-
-  return { moveList: moveList, moveMap: moveMap };
+  // Special variable for passing a pawn promotion move map
+  const pawnPromotionMoveMap = pawnPromotion({ moveMap, futureBoardState, teamColour});
+  return { moveList: moveList, moveMap: pawnPromotionMoveMap};
 }
 
 export function possiblePawnCaptures({ futureBoardState, teamColour }) {
@@ -236,3 +237,20 @@ export function validEnPassant({
 //   console.log(typeof args)
 //   console.log(args)
 // }
+
+export function pawnPromotion({
+  moveMap, futureBoardState, teamColour
+}) {
+  const isPromotionRank = (rank) => (teamColour === Color.white ? rank === 8 : rank === 1)  // Determining the rank required for pawn promotion of a given team colour
+
+  return moveMap.map((move) => {
+    const destination = new ChessCoordinate(move.to);
+    if (isPromotionRank(destination.rank)) {
+      return { ...move, isPromotion: true }; // Mark the move as a promotion
+    }
+    return move;
+  });
+
+
+
+}

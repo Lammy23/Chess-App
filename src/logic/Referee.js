@@ -1,7 +1,7 @@
 import { allChessCoordinates, Color, deepEqual } from "../components/constants";
 import { ChessCoordinate } from "./Coordinates";
 import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
-import { kingMove, possibleKingMoves } from "./rules/kingRules";
+import { kingMove, possibleKingMoves, validCastling, test} from "./rules/kingRules";
 import { possibleKnightMoves, knightMove } from "./rules/knightRules";
 import {
   pawnMove,
@@ -14,8 +14,14 @@ import { possibleRookMoves, rookMove } from "./rules/rookRules";
 
 export default class Referee {
   // Fields
-  #refContext = {};
-
+  #refContext = {}; // Holds the parameters that the Referee will act based on
+  isCastle = false;
+  isCastleKingSide = false;
+  isCastleQueenSide = false;
+  castleMoveDetails = {
+    oldRookCoordinates: 'oldRookCoordinates',
+    currentRookCoordinates: 'currentRookCoordinates'
+  }
   #getEnemyKingCoordinates(teamColour) {
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
     const enemyColor = Color.getLetter(Color.toggleColor(ourColor));
@@ -36,6 +42,7 @@ export default class Referee {
     futureBoardState,
     pieceType,
     moveHistory,
+    castleParameters,
   }) => {
     //#SUGGESTION: Might be a better way to extract from hashmap?
     this.#refContext = {
@@ -49,6 +56,7 @@ export default class Referee {
       pieceType: pieceType,
       boardState: boardState,
       futureBoardState: futureBoardState,
+      castleParameters: castleParameters,
     };
 
     this.#refContext.previousFileNumber = this.fileToNumber(
@@ -105,6 +113,9 @@ export default class Referee {
   isRookMove = () => rookMove.apply(this, [this.#refContext]);
   isQueenMove = () => queenMove.apply(this, [this.#refContext]);
   isKnightMove = () => knightMove.apply(this, [this.#refContext]);
+  
+  // Tests that the 'apply' method works correctly
+  test = () => test.apply(this, [this.#refContext]);
 
   /**
    *
@@ -247,7 +258,8 @@ export default class Referee {
   };
 
   isValidEnPassant = () => validEnPassant.apply(this, [this.#refContext]);
-
+  isValidCastling = () => validCastling.apply(this, [this.#refContext]);
+  
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
    * @param {string} previousCoordinates
@@ -330,7 +342,7 @@ export default class Referee {
     moves.push(...this.getPossibleQueenMoves(teamColour).moveMap);
     moves.push(...this.getPossibleKingMoves(teamColour).moveMap);
     moves.push(...this.getPossiblePawnMoves(teamColour).moveMap);
-    moves.push(...this.getPossiblePawnCaptures(teamColour).moveMap);
+    moves.push(...this.getPossiblePawnCaptures(teamColour).moveMap);    
 
     return moves;
   }
