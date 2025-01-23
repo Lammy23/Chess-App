@@ -384,6 +384,7 @@ export const MovementProvider = ({ children, appRef }) => {
       soundToPlay = "mariojump";
       if (boardState[currentCoordinates]) {
         setLastMoveWasCapture(true);
+        soundToPlay = soundFiles["capture"];
       } else {
         setLastMoveWasCapture(false);
       }
@@ -502,14 +503,13 @@ export const MovementProvider = ({ children, appRef }) => {
       console.error("Promotion choice is required!"); // Log an error if no piece is chosen
       return;
     }
-  
+
     // Update the board state with the new promoted piece
     setBoardState((prevState) => ({
       ...prevState, // Preserve the rest of the board state
       [position]: `${chosenPiece}_${team === "white" ? "w" : "b"}`, // Replace the pawn with the chosen piece
     }));
   }
-  
 
   // Improving Audio peformance on load
   useEffect(() => {
@@ -517,14 +517,15 @@ export const MovementProvider = ({ children, appRef }) => {
     preloadSound("englishorspanish");
     preloadSound(soundFiles["check"]);
     preloadSound(soundFiles["undo-redo"]);
+    preloadSound(soundFiles["capture"]);
   }, []);
 
   // Setting the default position of the chess board upon loading the app
   useEffect(() => {
     setBoardState(() => {
       setBoardHistory((prev) => {
-        // prev[0] = startingChessPosition;
-        prev[0] = testingHybridPromotion
+        prev[0] = startingChessPosition;
+        // prev[0] = testingHybridPromotion
         return [...prev];
       });
       return startingChessPosition;
