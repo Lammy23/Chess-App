@@ -4,12 +4,12 @@ import MoveStrip from "./MoveStrip";
 import { useMovementContext } from "../context/MovementContext";
 
 function SidePanel() {
-  // const [moveList, setMoveList] = useState([]);
-  const { moveList } = useMovementContext();
+  // const [moveNotations, setMoveNotations] = useState([]);
+  const { moveNotations } = useMovementContext();
 
   return (
     <div id="side-panel" className="background">
-      {moveList.map(({ moveSetNumber, whiteMove, blackMove }) => {
+      {moveNotations.map(({ moveSetNumber, whiteMove, blackMove }) => {
         return (
           <MoveStrip
             key={moveSetNumber}
