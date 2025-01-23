@@ -8,11 +8,14 @@ import {
   ranks,
   soundFiles,
   startingChessPosition,
+  // testingPromotionPosition,
+  testingHybridPromotion,
 } from "../components/constants";
 import Referee from "../logic/Referee.js";
 import { ChessPiece } from "../logic/Piece.js";
 import { PieceNotation } from "../logic/Notation.js";
 import { ChessCoordinate } from "../logic/Coordinates.js";
+import { pawnPromotion } from "../logic/rules/pawnRules.js";
 
 const MovementContext = createContext(); // Creating the Movement Context
 const preloadedAudio = {}; // Creating an object to store preloaded audio files
@@ -386,7 +389,7 @@ export const MovementProvider = ({ children, appRef }) => {
       }
       if (referee.isCheckingOpponent() || referee.isUnderCheck()) {
         setLastMoveWasCheck(true);
-        soundToPlay = "getout";
+        soundToPlay = soundFiles["check"];
         if (referee.isCheckmatingOpponent()) {
           setLastMoveWasCheckmate(true);
           console.log("checkmate");
@@ -493,11 +496,26 @@ export const MovementProvider = ({ children, appRef }) => {
     }
   }
 
+  function promotePawn(position, chosenPiece, team) {
+    // Check if the user has provided a promotion choice
+    if (!chosenPiece) {
+      console.error("Promotion choice is required!"); // Log an error if no piece is chosen
+      return;
+    }
+  
+    // Update the board state with the new promoted piece
+    setBoardState((prevState) => ({
+      ...prevState, // Preserve the rest of the board state
+      [position]: `${chosenPiece}_${team === "white" ? "w" : "b"}`, // Replace the pawn with the chosen piece
+    }));
+  }
+  
+
   // Improving Audio peformance on load
   useEffect(() => {
     preloadSound("mariojump");
     preloadSound("englishorspanish");
-    preloadSound("getout");
+    preloadSound(soundFiles["check"]);
     preloadSound(soundFiles["undo-redo"]);
   }, []);
 
@@ -505,7 +523,8 @@ export const MovementProvider = ({ children, appRef }) => {
   useEffect(() => {
     setBoardState(() => {
       setBoardHistory((prev) => {
-        prev[0] = startingChessPosition;
+        // prev[0] = startingChessPosition;
+        prev[0] = testingHybridPromotion
         return [...prev];
       });
       return startingChessPosition;
@@ -627,6 +646,7 @@ export const MovementProvider = ({ children, appRef }) => {
         grabPiece,
         movePiece,
         dropPiece,
+        promotePawn,
         moveCount,
         setMoveCount,
         boardState,

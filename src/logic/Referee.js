@@ -386,6 +386,9 @@ export default class Referee {
     const enemyColor = Color.toggleColor(ourColor);
     const moves = this.getPossibleMoves(enemyColor);
 
+    // DEBUG: Checking the sanity of the moves
+    // console.log(moves);
+    
     const originalBoard = { ...this.#refContext.futureBoardState };
     const project = (move) => {
       this.#refContext.futureBoardState[move.to] =
@@ -400,6 +403,10 @@ export default class Referee {
       project(move);
       // Check if we're under check
       if (!this.isUnderCheck(enemyColor)) {
+
+        // DEBUG: Finding out what move prevents checkmate
+        console.log(move);
+        
         isCheckmated = false;
         break;
       }

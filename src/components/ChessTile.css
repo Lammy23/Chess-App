@@ -6,6 +6,7 @@
   align-items: center;
 }
 
+/* Chess piece styling */
 .piece-div {
   width: 70px;
   height: 70px;
@@ -14,10 +15,21 @@
   background-size: 60px;
 }
 
+/* Change cursor to grab when hovering over a piece */
 .piece-div:hover {
   cursor: grab;
 }
 
+/* Change cursor to grabbing when the piece is clicked */
 .piece-div:active {
   cursor: grabbing;
+}
+
+/* Disable interactions when the board is locked */
+.locked .piece-div:hover {
+  cursor: not-allowed; /* Show 'not-allowed' cursor to indicate no interaction */
+}
+
+.locked .piece-div:active {
+  cursor: not-allowed; /* Ensure grabbing is also disabled */
 }

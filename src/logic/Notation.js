@@ -9,6 +9,7 @@ import { Rook } from "./pieces/Rook";
 import { Queen } from "./pieces/Queen";
 import { King } from "./pieces/King";
 
+/* TODO: NEED TO SHOW PROPER NOTATION OF WHICH PIECE WILL BE MOVING TO A SPOT IF THERE ARE MORE THAN 1 PIECE (SAME KIND OF PIECE) THAT CAN MOVE THERE */
 export class PieceNotation {
 	// Fields
 

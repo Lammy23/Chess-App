@@ -1,0 +1,32 @@
+.promotion-modal {
+    position: fixed;
+    top: 50%; /* Center the modal vertically */
+    left: 50%; /* Center the modal horizontally */
+    transform: translate(-50%, -50%); /* Adjust for modal dimensions */
+    background: white; /* Modal background color */
+    border: 2px solid black; /* Modal border styling */
+    padding: 20px; /* Padding inside the modal */
+    border-radius: 10px; /* Rounded corners for the modal */
+    z-index: 1000; /* Ensure the modal appears above other elements */
+  }
+  
+  .promotion-options {
+    display: flex; /* Arrange buttons in a row */
+    justify-content: space-around; /* Add space between buttons */
+    margin-top: 10px; /* Add space above the buttons */
+  }
+  
+  .promotion-button {
+    padding: 10px; /* Button padding */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners for buttons */
+    background-color: #007bff; /* Button color */
+    color: white; /* Text color */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    font-size: 16px; /* Button font size */
+  }
+  
+  .promotion-button:hover {
+    background-color: #0056b3; /* Change color on hover */
+  }
+  
