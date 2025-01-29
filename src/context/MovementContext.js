@@ -435,6 +435,9 @@ export const MovementProvider = ({ children, appRef }) => {
             referee.castleMoveDetails.oldRookCoordinates;
           updatedPosition[currentRookCoordinates] = prev[oldRookCoordinates];
           updatedPosition[oldRookCoordinates] = null;
+        } else {
+          setLastMoveWasCastleKingSide(false);
+          setLastMoveWasCastleQueenSide(false);
         }
 
         //Add board to list
