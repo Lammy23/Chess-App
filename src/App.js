@@ -33,7 +33,14 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MenuScreen />} />
-          <Route path="/chess" element={<ChessBoard />} />
+          <Route
+            path="/chess"
+            element={
+              <div ref={appRef}>
+                <ChessBoard />
+              </div>
+            }
+          />
         </Routes>
       </Router>
     </MovementProvider>
