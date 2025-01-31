@@ -6,6 +6,8 @@ import { Routes, BrowserRouter as Router, Route } from "react-router-dom";
 import "./App.css";
 import MenuScreen from "./components/MenuScreen";
 
+import "bootstrap/dist/css/bootstrap.min.css";
+
 function App() {
   const appRef = useRef(); // Using a new React Hook useRef (as in use reference)
 
