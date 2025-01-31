@@ -30,6 +30,7 @@ function ChessBoard() {
     promotePawn,
     isGameOver,
     setIsGameOver,
+    restartGame,
   } = useMovementContext();
 
   // State for pawn promotion
@@ -44,7 +45,7 @@ function ChessBoard() {
 
 
   function handleRestartGame() {
-	setIsGameOver(false);
+  restartGame();
   }
 
 

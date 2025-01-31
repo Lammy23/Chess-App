@@ -78,6 +78,43 @@ export const MovementProvider = ({ children, appRef }) => {
   // Creating an instance of the referee class to check valide moves and what not. #TODO: Might refactor how I do this
   const referee = new Referee();
 
+  function restartGame() {
+    setBoardHistory((prev) => {
+      prev[0] = startingChessPosition;
+      return [...prev];
+    });
+    setMoveHistory([]);
+    setMoveCount(0);
+    setBoardState(startingChessPosition);
+
+    // Reset flags
+    setWhiteKingMoved(false);
+    setBlackKingMoved(false);
+    setLeftBlackRookMoved(false);
+    setLeftWhiteRookMoved(false);
+    setRightBlackRookMoved(false);
+    setRightWhiteRookMoved(false);
+
+    // Reset turn
+    setCurrentTurn(Color.white);
+
+    // Reset move notations
+    setMoveNotations([]);
+
+    // Reset game over
+    setIsGameOver(false);
+
+    // Reset last move flags
+    setLastMoveWasCapture(false);
+    setLastMoveWasCheck(false);
+    setLastMoveWasCheckmate(false);
+    setLastMoveWasCastleKingSide(false);
+    setLastMoveWasCastleQueenSide(false);
+
+    // Reset edit mode
+    setInEditMode(false);
+  }
+
   /**
    * Function to preload the audio files
    * @param {string} sound The name of the sound file to preload
@@ -649,6 +686,7 @@ export const MovementProvider = ({ children, appRef }) => {
       value={{
         isGameOver,
         setIsGameOver,
+        restartGame,
         activePiece,
         activePieceOrigin,
         setActivePiece,
