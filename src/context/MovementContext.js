@@ -73,6 +73,8 @@ export const MovementProvider = ({ children, appRef }) => {
   const [rightBlackRookMoved, setRightBlackRookMoved] = useState(false);
   const [rightWhiteRookMoved, setRightWhiteRookMoved] = useState(false);
 
+  const [isGameOver, setIsGameOver] = useState(false);
+
   // Creating an instance of the referee class to check valide moves and what not. #TODO: Might refactor how I do this
   const referee = new Referee();
 
@@ -395,6 +397,8 @@ export const MovementProvider = ({ children, appRef }) => {
           setLastMoveWasCheckmate(true);
           console.log("checkmate");
           soundToPlay = "englishorspanish";
+          // End the game
+          setIsGameOver(true);
         }
       } else {
         setLastMoveWasCheck(false);
@@ -643,6 +647,8 @@ export const MovementProvider = ({ children, appRef }) => {
   return (
     <MovementContext.Provider // Providing function and variables for other components to use.
       value={{
+        isGameOver,
+        setIsGameOver,
         activePiece,
         activePieceOrigin,
         setActivePiece,
