@@ -31,6 +31,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MenuScreen />} />
+          <Route path="/chess" element={<ChessBoard />} />
         </Routes>
       </Router>
     </MovementProvider>
