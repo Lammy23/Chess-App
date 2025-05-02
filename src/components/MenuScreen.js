@@ -56,7 +56,7 @@ function MenuScreen() {
               </div>
 
               <div className="menu-footer">
-                <p>Use arrow keys to undo and redo moves during gameplay</p>
+                <p>By Olamikun and Aidan</p>
               </div>
             </div>
           </Col>
