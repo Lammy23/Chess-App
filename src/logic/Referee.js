@@ -1,6 +1,7 @@
-import { allChessCoordinates, deepEqual } from "../components/constants";
+import { allChessCoordinates, Color, deepEqual } from "../components/constants";
+import { ChessCoordinate } from "./Coordinates";
 import { bishopMove, possibleBishopMoves } from "./rules/bishopRules";
-import { kingMove, possibleKingMoves } from "./rules/kingRules";
+import { kingMove, possibleKingMoves, validCastling, test} from "./rules/kingRules";
 import { possibleKnightMoves, knightMove } from "./rules/knightRules";
 import {
   pawnMove,
@@ -13,11 +14,17 @@ import { possibleRookMoves, rookMove } from "./rules/rookRules";
 
 export default class Referee {
   // Fields
-  #refContext = {};
-
+  #refContext = {}; // Holds the parameters that the Referee will act based on
+  isCastle = false;
+  isCastleKingSide = false;
+  isCastleQueenSide = false;
+  castleMoveDetails = {
+    oldRookCoordinates: 'oldRookCoordinates',
+    currentRookCoordinates: 'currentRookCoordinates'
+  }
   #getEnemyKingCoordinates(teamColour) {
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = ourColor === "WHITE" ? "b" : "w";
+    const enemyColor = Color.getLetter(Color.toggleColor(ourColor));
     for (let coordinate of allChessCoordinates) {
       if (
         this.#refContext.futureBoardState[coordinate] === `king_${enemyColor}`
@@ -35,6 +42,7 @@ export default class Referee {
     futureBoardState,
     pieceType,
     moveHistory,
+    castleParameters,
   }) => {
     //#SUGGESTION: Might be a better way to extract from hashmap?
     this.#refContext = {
@@ -48,6 +56,7 @@ export default class Referee {
       pieceType: pieceType,
       boardState: boardState,
       futureBoardState: futureBoardState,
+      castleParameters: castleParameters,
     };
 
     this.#refContext.previousFileNumber = this.fileToNumber(
@@ -104,6 +113,9 @@ export default class Referee {
   isRookMove = () => rookMove.apply(this, [this.#refContext]);
   isQueenMove = () => queenMove.apply(this, [this.#refContext]);
   isKnightMove = () => knightMove.apply(this, [this.#refContext]);
+  
+  // Tests that the 'apply' method works correctly
+  test = () => test.apply(this, [this.#refContext]);
 
   /**
    *
@@ -132,10 +144,9 @@ export default class Referee {
         });
         coordinate.plus({ fileStep: x[i], rankStep: y[i] });
       } while (
-        !(coordinate.isOccupied({ futureBoardState }) || coordinate.isEdge())
+        !(coordinate.isOccupied(futureBoardState) || coordinate.isEdge())
       );
-
-      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+      if (coordinate.isOccupiedByOpponent(futureBoardState, teamColour)) {
         moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -151,7 +162,6 @@ export default class Referee {
 
   getPossibleCrossMoves(coordinate) {
     // Assuming coordinate is of type ChessCoordinate
-
     let futureBoardState = this.#refContext.futureBoardState;
     let teamColour = this.#refContext.teamColour;
 
@@ -172,10 +182,10 @@ export default class Referee {
         coordinate.plus({ fileStep: x[i], rankStep: 0 });
       } while (
         !(
-          coordinate.isOccupied({ futureBoardState }) || coordinate.isFileEdge()
+          coordinate.isOccupied(futureBoardState) || coordinate.isFileEdge()
         )
       );
-      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+      if (coordinate.isOccupiedByOpponent(futureBoardState, teamColour)) {
         moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -195,10 +205,10 @@ export default class Referee {
         coordinate.plus({ fileStep: 0, rankStep: x[i] });
       } while (
         !(
-          coordinate.isOccupied({ futureBoardState }) || coordinate.isRankEdge()
+          coordinate.isOccupied(futureBoardState) || coordinate.isRankEdge()
         )
       );
-      if (coordinate.isOccupiedByOpponent({ futureBoardState, teamColour })) {
+      if (coordinate.isOccupiedByOpponent(futureBoardState, teamColour)) {
         moveList.push(coordinate.coordinate);
         moveMap.push({
           from: origin,
@@ -248,7 +258,8 @@ export default class Referee {
   };
 
   isValidEnPassant = () => validEnPassant.apply(this, [this.#refContext]);
-
+  isValidCastling = () => validCastling.apply(this, [this.#refContext]);
+  
   /**
    * Determines if a move is valid based on the coordinates, piece type and the board state
    * @param {string} previousCoordinates
@@ -331,7 +342,7 @@ export default class Referee {
     moves.push(...this.getPossibleQueenMoves(teamColour).moveMap);
     moves.push(...this.getPossibleKingMoves(teamColour).moveMap);
     moves.push(...this.getPossiblePawnMoves(teamColour).moveMap);
-    moves.push(...this.getPossiblePawnCaptures(teamColour).moveMap);
+    moves.push(...this.getPossiblePawnCaptures(teamColour).moveMap);    
 
     return moves;
   }
@@ -344,7 +355,6 @@ export default class Referee {
     moves.push(...this.getPossibleQueenMoves(teamColour).moveList);
     moves.push(...this.getPossibleKingMoves(teamColour).moveList);
     moves.push(...this.getPossiblePawnCaptures(teamColour).moveList);
-
     return moves;
   }
 
@@ -364,7 +374,7 @@ export default class Referee {
 
   isUnderCheck(teamColour) {
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = ourColor === "WHITE" ? "BLACK" : "WHITE";
+    const enemyColor = Color.toggleColor(ourColor);
     // Confirm enemy is checking our king
     return this.isCheckingOpponent(enemyColor);
   }
@@ -373,9 +383,12 @@ export default class Referee {
     var isCheckmated = true;
     // For all of our possible moves if made, see if we're still under check.
     const ourColor = teamColour ? teamColour : this.#refContext.teamColour;
-    const enemyColor = ourColor === "WHITE" ? "BLACK" : "WHITE";
+    const enemyColor = Color.toggleColor(ourColor);
     const moves = this.getPossibleMoves(enemyColor);
 
+    // DEBUG: Checking the sanity of the moves
+    // console.log(moves);
+    
     const originalBoard = { ...this.#refContext.futureBoardState };
     const project = (move) => {
       this.#refContext.futureBoardState[move.to] =
@@ -390,7 +403,10 @@ export default class Referee {
       project(move);
       // Check if we're under check
       if (!this.isUnderCheck(enemyColor)) {
+
+        // DEBUG: Finding out what move prevents checkmate
         console.log(move);
+        
         isCheckmated = false;
         break;
       }
@@ -398,32 +414,12 @@ export default class Referee {
     }
 
     if (deepEqual(this.#refContext.futureBoardState, originalBoard)) {
-      console.log("All's good");
       console.log("isCheckmated", isCheckmated);
     }
 
     return isCheckmated;
   }
 
-  /**
-   *  Determines if en passant is a valid move based on the coordinates, piece type and the board state
-   * @param {string} tileX
-   * @param {number} tileY
-   * @param {object} boardState
-   * @param {string} TeamType
-   * @returns {boolean} true if the move is valid, false otherwise
-   */
-  //Determining if the move from a pawn can use En Passant
-  // validEnPassant(tileX, tileY, boardState, TeamType) {
-  //   const tileKey = `${tileX}${tileY}`;
-  //   const attackableOpposingPawn = TeamType === "WHITE" ? "pawn_b" : "pawn_w";
-  //   if (boardState[tileKey] === attackableOpposingPawn) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
-  //Extracting the Rank from the coordinate given
   /**
    * Extracts the rank from the coordinate given
    * @param {string} coordinate
@@ -444,10 +440,10 @@ export default class Referee {
 
   //Extracts the team colour based on the piece given
   extractTeamColour(pieceType) {
-    if (pieceType.includes("_w")) {
-      return "WHITE";
-    } else if (pieceType.includes("_b")) {
-      return "BLACK";
+    if (pieceType.slice(-1) === "w") {
+      return Color.white;
+    } else if (pieceType.slice(-1) === "b") {
+      return Color.black;
     }
     //Returns null if some piece does not follow the naming convention
     return null;
